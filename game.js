@@ -1,5 +1,3 @@
-const socket = new WebSocket('wss://your-websocket-server.glitch.me'); // Ersetze durch die WebSocket-URL
-
 let canvas, context;
 let ball = { x: 400, y: 300, radius: 15, color: 'black' };
 let score = 0;
@@ -9,12 +7,7 @@ window.onload = () => {
   context = canvas.getContext('2d');
   drawBall();
 
-  socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    if (data.type === 'command') {
-      handleCommand(data.command);
-    }
-  };
+  document.addEventListener('keydown', handleKeyPress);
 };
 
 function drawBall() {
@@ -26,18 +19,18 @@ function drawBall() {
   context.closePath();
 }
 
-function handleCommand(command) {
-  switch (command) {
-    case 'left':
+function handleKeyPress(event) {
+  switch (event.key) {
+    case 'ArrowLeft':
       ball.x -= 10;
       break;
-    case 'right':
+    case 'ArrowRight':
       ball.x += 10;
       break;
-    case 'up':
+    case 'ArrowUp':
       ball.y -= 10;
       break;
-    case 'down':
+    case 'ArrowDown':
       ball.y += 10;
       break;
   }
