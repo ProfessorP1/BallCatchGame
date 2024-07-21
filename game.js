@@ -1,8 +1,7 @@
-const socket = new WebSocket('wss://scoreboard4.glitch.me'); // Ersetze dies durch die URL deines WebSocket-Servers
-
 let canvas, context;
 let ball = { x: 400, y: 300, radius: 15, color: 'black' };
 let score = 0;
+const socket = new WebSocket('wss://scoreboard4.glitch.me'); // Ersetze dies durch die URL deines WebSocket-Servers
 
 window.onload = () => {
   canvas = document.getElementById('gameCanvas');
@@ -10,10 +9,26 @@ window.onload = () => {
   drawBall();
 
   socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    if (data.type === 'command') {
-      handleCommand(data.command);
+    try {
+      const data = JSON.parse(event.data);
+      if (data.type === 'command') {
+        handleCommand(data.command);
+      }
+    } catch (error) {
+      console.error('Fehler beim Parsen der WebSocket-Nachricht:', error);
     }
+  };
+
+  socket.onopen = () => {
+    console.log('WebSocket-Verbindung geöffnet');
+  };
+
+  socket.onclose = () => {
+    console.log('WebSocket-Verbindung geschlossen');
+  };
+
+  socket.onerror = (error) => {
+    console.error('WebSocket-Fehler:', error);
   };
 };
 
@@ -49,4 +64,3 @@ function updateScore() {
   score++;
   document.getElementById('score').innerText = `Score: ${score}`;
 }
-
