@@ -1,20 +1,51 @@
 const socket = new WebSocket('wss://your-project-name.glitch.me');
 
+let canvas, context;
+let ball = { x: 400, y: 300, radius: 15, color: 'blue' };
 let score = 0;
 
-socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  console.log('Command received:', data);
-  if (data.type === 'scoreUpdate') {
-    score = data.score;
-    updateScoreDisplay();
-  }
+window.onload = () => {
+  canvas = document.getElementById('gameCanvas');
+  context = canvas.getContext('2d');
+  drawBall();
+
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === 'command') {
+      handleCommand(data.command);
+    }
+  };
 };
 
-function updateScoreDisplay() {
-  document.getElementById('score').innerText = `Score: ${score}`;
+function drawBall() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.beginPath();
+  context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+  context.fillStyle = ball.color;
+  context.fill();
+  context.closePath();
 }
 
-const canvas = document.getElementById('gameCanvas');
-const context = canvas.getContext('2d');
-// Hier können Sie Ihr Spiel implementieren
+function handleCommand(command) {
+  switch (command) {
+    case 'left':
+      ball.x -= 10;
+      break;
+    case 'right':
+      ball.x += 10;
+      break;
+    case 'up':
+      ball.y -= 10;
+      break;
+    case 'down':
+      ball.y += 10;
+      break;
+  }
+  drawBall();
+  updateScore();
+}
+
+function updateScore() {
+  score++;
+  document.getElementById('score').innerText = `Score: ${score}`;
+}
