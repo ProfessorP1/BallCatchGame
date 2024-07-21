@@ -1,4 +1,4 @@
-const socket = new WebSocket('wss://scoreboard4.glitch.me');
+const socket = new WebSocket('wss://your-glitch-project-name.glitch.me');
 
 document.getElementById('left').addEventListener('click', () => {
   sendCommand('left');
