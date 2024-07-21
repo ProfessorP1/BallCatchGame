@@ -42,4 +42,3 @@ function updateScore() {
   score++;
   document.getElementById('score').innerText = `Score: ${score}`;
 }
-
