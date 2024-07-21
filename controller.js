@@ -1,17 +1,22 @@
 const socket = new WebSocket('wss://your-project-name.glitch.me');
 
 document.getElementById('left').addEventListener('click', () => {
-  socket.send(JSON.stringify({ type: 'command', direction: 'left' }));
+  sendCommand('left');
 });
 
 document.getElementById('right').addEventListener('click', () => {
-  socket.send(JSON.stringify({ type: 'command', direction: 'right' }));
+  sendCommand('right');
 });
 
 document.getElementById('up').addEventListener('click', () => {
-  socket.send(JSON.stringify({ type: 'command', direction: 'up' }));
+  sendCommand('up');
 });
 
 document.getElementById('down').addEventListener('click', () => {
-  socket.send(JSON.stringify({ type: 'command', direction: 'down' }));
+  sendCommand('down');
 });
+
+function sendCommand(command) {
+  const message = JSON.stringify({ type: 'command', command });
+  socket.send(message);
+}
