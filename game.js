@@ -1,4 +1,4 @@
-const socket = new WebSocket('wss://your-glitch-project-name.glitch.me');
+const socket = new WebSocket('wss://your-websocket-server.glitch.me'); // Ersetze durch die WebSocket-URL
 
 let canvas, context;
 let ball = { x: 400, y: 300, radius: 15, color: 'black' };
