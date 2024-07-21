@@ -1,7 +1,7 @@
 const socket = new WebSocket('wss://scoreboard4.glitch.me');
 
 let canvas, context;
-let ball = { x: 400, y: 300, radius: 15, color: 'blue' };
+let ball = { x: 400, y: 300, radius: 15, color: 'black' };
 let score = 0;
 
 window.onload = () => {
