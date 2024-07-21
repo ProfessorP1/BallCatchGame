@@ -1,4 +1,4 @@
-const socket = new WebSocket('wss://your-project-name.glitch.me');
+const socket = new WebSocket('wss://scoreboard4.glitch.me');
 
 let canvas, context;
 let ball = { x: 400, y: 300, radius: 15, color: 'blue' };
