@@ -1,4 +1,4 @@
-const socket = new WebSocket('wss://your-glitch-project-name.glitch.me');
+const socket = new WebSocket('wss://your-websocket-server.glitch.me'); // Ersetze durch die WebSocket-URL
 
 document.getElementById('left').addEventListener('click', () => {
   sendCommand('left');
