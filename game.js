@@ -1,3 +1,5 @@
+const socket = new WebSocket('wss://your-websocket-server-url'); // Ersetze dies durch die URL deines WebSocket-Servers
+
 let canvas, context;
 let ball = { x: 400, y: 300, radius: 15, color: 'black' };
 let score = 0;
@@ -7,7 +9,12 @@ window.onload = () => {
   context = canvas.getContext('2d');
   drawBall();
 
-  document.addEventListener('keydown', handleKeyPress);
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === 'command') {
+      handleCommand(data.command);
+    }
+  };
 };
 
 function drawBall() {
@@ -19,18 +26,18 @@ function drawBall() {
   context.closePath();
 }
 
-function handleKeyPress(event) {
-  switch (event.key) {
-    case 'ArrowLeft':
+function handleCommand(command) {
+  switch (command) {
+    case 'left':
       ball.x -= 10;
       break;
-    case 'ArrowRight':
+    case 'right':
       ball.x += 10;
       break;
-    case 'ArrowUp':
+    case 'up':
       ball.y -= 10;
       break;
-    case 'ArrowDown':
+    case 'down':
       ball.y += 10;
       break;
   }
