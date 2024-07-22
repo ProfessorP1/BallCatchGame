@@ -59,6 +59,8 @@
         let teleport = false; // Variable to manage teleportation
         let teleportInterval;
 
+        const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
+
         // Load images
         const img = new Image();
         const platformImg = new Image();
@@ -161,17 +163,11 @@
                 if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
                     imgSpeed = Math.min(maxImgSpeed, imgSpeed + 4); // Increase image speed with max limit
                     setTimeout(() => {
-                        imgSpeed = originalImgSpeed;
-                    }, 3000); // Reset image speed after 3 seconds
-
-                    score += 1;
-                    if (score % 10 === 0) {
-                        ballSpeed += 1;
-                        imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
-                    }
-                    secondBalls.splice(index, 1);
-                    secondBallCounter--;
-                    currentScoreDiv.innerText = `Score: ${score}`;
+                        imgSpeed = originalImgSpeed; // Reset image speed after 5 seconds
+                    }, 5000);
+                    secondBalls.splice(index, 2);
+                } else if (ball.y > canvas.height) {
+                    secondBalls.splice(index, 2);
                 }
             });
 
@@ -179,42 +175,68 @@
                 goldenBallY += goldenBallSpeedY;
                 if (goldenBallY + BALL_SIZE >= platformY && goldenBallX >= platformX && goldenBallX <= platformX + PLATFORM_WIDTH) {
                     score += GOLDEN_BALL_SCORE;
-                    goldenBallActive = false;
                     currentScoreDiv.innerText = `Score: ${score}`;
-                }
-                if (goldenBallY > canvas.height) {
+                    goldenBallActive = false;
+
+                    if (score >= WINNING_SCORE) {
+                        isGameOver = true;
+                        drawWinScreen();
+                        scoreboard.push({ name: playerName, score });
+                        scoreboard.sort((a, b) => b.score - a.score);
+                        if (scoreboard.length > 10) {
+                            scoreboard.pop();
+                        }
+                        localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+                        updateScoreboard();
+                        return;
+                    }
+                } else if (goldenBallY > canvas.height) {
                     goldenBallActive = false;
                 }
+            }
+
+            imgX += imgSpeed;
+            if (imgX <= 0 || imgX >= canvas.width - BALL_SIZE * 2) {
+                imgSpeed = -imgSpeed;
+            }
+
+            if (ballX <= 0 || ballX >= canvas.width - BALL_SIZE) {
+                ballSpeedX = -ballSpeedX;
             }
 
             if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
-                score += 1;
-                if (score % 10 === 0) {
-                    ballSpeed += 1;
-                    imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
-                }
+                score++;
+                ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
+                imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
                 resetBall();
-                if (secondBallCounter < 2) {
+                currentScoreDiv.innerText = `Score: ${score}`;
+                secondBallCounter++;
+                if (secondBallCounter % 3 === 0) { // Reduced interval to make them appear more often
                     resetSecondBalls();
                 }
-                currentScoreDiv.innerText = `Score: ${score}`;
-            }
 
-            if (ballY > canvas.height) {
-                isGameOver = true;
-            }
-
-            if (goldenBallActive) {
-                goldenBallX += Math.sin(goldenBallY / 10) * 2;
-                if (goldenBallX < 0) goldenBallX = 0;
-                if (goldenBallX > canvas.width - BALL_SIZE) goldenBallX = canvas.width - BALL_SIZE;
-            }
-
-            if (teleport && !goldenBallActive) {
-                imgX += imgSpeed;
-                if (imgX < 0 || imgX > canvas.width - BALL_SIZE * 5) {
-                    imgSpeed = -imgSpeed;
+                if (score >= WINNING_SCORE) {
+                    isGameOver = true;
+                    drawWinScreen();
+                    scoreboard.push({ name: playerName, score });
+                    scoreboard.sort((a, b) => b.score - a.score);
+                    if (scoreboard.length > 10) {
+                        scoreboard.pop();
+                    }
+                    localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+                    updateScoreboard();
+                    return;
                 }
+            } else if (ballY > canvas.height) {
+                isGameOver = true;
+                scoreboard.push({ name: playerName, score });
+                scoreboard.sort((a, b) => b.score - a.score);
+                if (scoreboard.length > 10) {
+                    scoreboard.pop();
+                }
+                localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+                updateScoreboard();
+                return;
             }
         }
 
@@ -294,7 +316,8 @@
             startScreen.style.display = 'flex';
         });
 
-        const ws = new WebSocket('ws://localhost:8080'); // Stellen Sie sicher, dass dies die richtige URL ist
+        // WebSocket client for game
+        const ws = new WebSocket('wss://your-glitch-project-name.glitch.me');
         ws.onopen = () => {
             console.log('WebSocket connection established');
             ws.send('game');
@@ -302,6 +325,13 @@
 
         ws.onmessage = (event) => {
             const command = event.data;
+            const reader = new FileReader();
+            // Definieren Sie die onload-Funktion
+                reader.onload = function(event) {
+                    // Der resultierende Text wird hier bereitgestellt
+                        const text = event.target.result;
+};
+            reader.readAsText(blob);
             console.log(`Received command: ${command}`); // Log received command to console
             if (command === 'left') {
                 console.log('Moving platform left');
