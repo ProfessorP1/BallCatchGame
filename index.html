@@ -326,11 +326,11 @@
         ws.onmessage = (event) => {
             const command = event.data;
             console.log(`Received command: ${command}`); // Log received command to console
-            if (command === '{"type":"Buffer","data":[108,101,102,116]}') {
+            if (command === '{"type":"Buffer","data":[123,34,97,99,116,105,111,110,34,58,34,108,101,102,116,34,125]}') {
                 console.log('Moving platform left');
                 platformX -= 20;
                 if (platformX < 0) platformX = 0;
-            } else if (command === '{"type":"Buffer","data":[114,105,103,104,116]}') {
+            } else if (command === '{"type":"Buffer","data":[123,34,97,99,116,105,111,110,34,58,34,114,105,103,104,116,34,125]}') {
                 console.log('Moving platform right');
                 platformX += 20;
                 if (platformX > canvas.width - PLATFORM_WIDTH) platformX = canvas.width - PLATFORM_WIDTH;
