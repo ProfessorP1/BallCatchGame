@@ -26,7 +26,7 @@
 
     <script>
         const slider = document.getElementById('slider');
-        const ws = new WebSocket('ws://scoreboard4.glitch.me');
+        const ws = new WebSocket('wss://scoreboard4.glitch.me');
 
         ws.onopen = () => {
             console.log('WebSocket connection established');
