@@ -325,13 +325,14 @@
         });
 
         // WebSocket client for game
-        const ws = new WebSocket('wss://scoreboard4.glitch.me');
+        const ws = new WebSocket('wss://your-glitch-project-name.glitch.me');
         ws.onopen = () => {
             ws.send('game');
         };
 
         ws.onmessage = (event) => {
             const command = event.data;
+            console.log(`Received command: ${command}`); // Log received command to console
             if (command === 'left') {
                 platformX -= 20;
                 if (platformX < 0) platformX = 0;
