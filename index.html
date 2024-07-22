@@ -229,7 +229,6 @@
                 }
             } else if (ballY > canvas.height) {
                 isGameOver = true;
-                drawGameOver();
                 scoreboard.push({ name: playerName, score });
                 scoreboard.sort((a, b) => b.score - a.score);
                 if (scoreboard.length > 10) {
@@ -325,8 +324,9 @@
         });
 
         // WebSocket client for game
-        const ws = new WebSocket('wss://scoreboard4.glitch.me');
+        const ws = new WebSocket('wss://your-glitch-project-name.glitch.me');
         ws.onopen = () => {
+            console.log('WebSocket connection established');
             ws.send('game');
         };
 
@@ -334,12 +334,22 @@
             const command = event.data;
             console.log(`Received command: ${command}`); // Log received command to console
             if (command === 'left') {
+                console.log('Moving platform left');
                 platformX -= 20;
                 if (platformX < 0) platformX = 0;
             } else if (command === 'right') {
+                console.log('Moving platform right');
                 platformX += 20;
                 if (platformX > canvas.width - PLATFORM_WIDTH) platformX = canvas.width - PLATFORM_WIDTH;
             }
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
         };
     </script>
 </body>
