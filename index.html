@@ -317,57 +317,33 @@
         });
 
         // WebSocket client for game
-const ws = new WebSocket('wss://scoreboard4.glitch.me');
+        const ws = new WebSocket('wss://your-glitch-project-name.glitch.me');
+        ws.onopen = () => {
+            console.log('WebSocket connection established');
+            ws.send('game');
+        };
 
-ws.onopen = () => {
-    console.log('WebSocket connection established');
-    ws.send('game');
-};
-
-ws.onmessage = (event) => {
-    // Überprüfen, ob die empfangene Nachricht ein Blob ist
-    if (event.data instanceof Blob) {
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            const jsonString = e.target.result;
-            const command = JSON.stringify(jsonString);
-
-            // Konvertieren des Buffers in einen String
-            const commandString = new TextDecoder().decode(new Uint8Array(command.data));
-
-            console.log(`Received command: ${commandString}`); // Ausgabe des empfangenen Befehls
-
-            // Verarbeiten des Befehls
-            if (commandString === 'left') {
+        ws.onmessage = (event) => {
+            const command = event.data;
+            console.log(`Received command: ${command}`); // Log received command to console
+            if (command === 'left') {
                 console.log('Moving platform left');
                 platformX -= 20;
                 if (platformX < 0) platformX = 0;
-            } else if (commandString === 'right') {
+            } else if (command === 'right') {
                 console.log('Moving platform right');
                 platformX += 20;
                 if (platformX > canvas.width - PLATFORM_WIDTH) platformX = canvas.width - PLATFORM_WIDTH;
             }
         };
 
-        reader.onerror = (error) => {
-            console.error('Error reading Blob:', error);
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
         };
 
-        reader.readAsText(event.data);
-    } else {
-        console.log('Received non-Blob data:', event.data);
-    }
-};
-
-ws.onerror = (error) => {
-    console.error('WebSocket error:', error);
-};
-
-ws.onclose = () => {
-    console.log('WebSocket connection closed');
-};
-
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
     </script>
 </body>
 </html>
