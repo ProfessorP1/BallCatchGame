@@ -328,11 +328,11 @@
             console.log(`Received command: ${command}`); // Log received command to console
             if (command === '{"type":"Buffer","data":[108,101,102,116]}') {
                 console.log('Moving platform left');
-                platformX -= 40;
+                platformX -= 80;
                 if (platformX < 0) platformX = 0;
             } else if (command === '{"type":"Buffer","data":[114,105,103,104,116]}') {
                 console.log('Moving platform right');
-                platformX += 40;
+                platformX += 80;
                 if (platformX > canvas.width - PLATFORM_WIDTH) platformX = canvas.width - PLATFORM_WIDTH;
             }
         };
