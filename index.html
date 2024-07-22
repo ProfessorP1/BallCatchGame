@@ -331,7 +331,7 @@ ws.onmessage = (event) => {
 
         reader.onload = (e) => {
             const jsonString = e.target.result;
-            const command = JSON.parse(jsonString);
+            const command = JSON.stringify(jsonString);
 
             // Konvertieren des Buffers in einen String
             const commandString = new TextDecoder().decode(new Uint8Array(command.data));
