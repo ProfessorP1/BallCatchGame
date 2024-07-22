@@ -32,56 +32,7 @@
     <button id="rightButton">Right</button>
     <script>
         // WebSocket client for controller
-        const ws = new WebSocket('wss://<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Controller</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #222;
-            color: #fff;
-            font-family: Arial, sans-serif;
-        }
-        button {
-            padding: 20px;
-            margin: 10px;
-            font-size: 24px;
-            border: 2px solid #fff;
-            border-radius: 10px;
-            background-color: #333;
-            color: #fff;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <button id="leftButton">Left</button>
-    <button id="rightButton">Right</button>
-    <script>
-        // WebSocket client for controller
-        const ws = new WebSocket('wss://scoreboard4.glitch.me');
-        ws.onopen = () => {
-            ws.send('controller');
-        };
-
-        document.getElementById('leftButton').addEventListener('click', () => {
-            ws.send('left');
-        });
-
-        document.getElementById('rightButton').addEventListener('click', () => {
-            ws.send('right');
-        });
-    </script>
-</body>
-</html>
-<script>
+        const ws = new WebSocket('wss://your-glitch-project-name.glitch.me');
         ws.onopen = () => {
             ws.send('controller');
         };
