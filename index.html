@@ -332,7 +332,7 @@
                         const text = event.target.result;
 };
             console.log(`Received command: ${command}`); // Log received command to console
-            if (command === {"type":"Buffer","data":[108,101,102,116]} ) {
+            if (command === "data":[108,101,102,116] ) {
                 console.log('Moving platform left');
                 platformX -= 20;
                 if (platformX < 0) platformX = 0;
