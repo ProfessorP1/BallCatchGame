@@ -3,12 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Controller</title>
+    <title>Mobile Controller</title>
     <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
         button {
-            width: 100px;
-            height: 100px;
+            padding: 20px;
+            margin: 10px;
             font-size: 24px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -16,14 +31,11 @@
     <button id="leftButton">Left</button>
     <button id="rightButton">Right</button>
     <script>
-        const ws = new WebSocket('ws://scoreboard4.glitch.me'); // Stellen Sie sicher, dass dies die richtige URL ist
-
+        // WebSocket client for controller
+        const ws = new WebSocket('wss://scoreboard4.glitch.me');
         ws.onopen = () => {
             console.log('WebSocket connection established');
-        };
-
-        ws.onmessage = (event) => {
-            console.log(`Message from server: ${event.data}`);
+            ws.send('controller');
         };
 
         ws.onerror = (error) => {
@@ -35,10 +47,12 @@
         };
 
         document.getElementById('leftButton').addEventListener('click', () => {
+            console.log('Sending left command');
             ws.send('left');
         });
 
         document.getElementById('rightButton').addEventListener('click', () => {
+            console.log('Sending right command');
             ws.send('right');
         });
     </script>
