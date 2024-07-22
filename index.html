@@ -326,7 +326,7 @@
         ws.onmessage = (event) => {
             const command = event.data;
             console.log(`Received command: ${command}`); // Log received command to console
-            if (command === 'left') {
+            if (command === '{"type":"Buffer","data":[114,105,103,104,116]}') {
                 console.log('Moving platform left');
                 platformX -= 20;
                 if (platformX < 0) platformX = 0;
