@@ -1,373 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ball Catch Game</title>
-    <style>
-        /* existing styles */
-    </style>
-</head>
-<body>
-    <div id="menuScreen">
-        <button id="option1">Game Option 1</button>
-        <button id="option2">Game Option 2</button>
-    </div>
-    <div id="startScreen" style="display: none;">
-        <img src="StartBild.png" alt="Start Screen">
-    </div>
-    <canvas id="gameCanvas" width="1280" height="700"></canvas>
-    <input type="text" id="nameInput" placeholder="Enter your name">
-    <div id="scoreboard"></div>
-    <div id="currentScore"></div>
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const nameInput = document.getElementById('nameInput');
-        const scoreboardDiv = document.getElementById('scoreboard');
-        const currentScoreDiv = document.getElementById('currentScore');
-        const startScreen = document.getElementById('startScreen');
-        const menuScreen = document.getElementById('menuScreen');
-        const option1Button = document.getElementById('option1');
-        const option2Button = document.getElementById('option2');
+<script>
+    const ws = new WebSocket('ws://scoreboard4.glitch.me');
 
-        const BALL_SIZE = 20;
-        const PLATFORM_WIDTH = 100;
-        const PLATFORM_HEIGHT = 10;
-        const GOLDEN_BALL_INTERVAL = 5000;
-        const GOLDEN_BALL_SCORE = 5;
-        const WINNING_SCORE = 300;
-        let ballSpeed = 5;
-        let ballX, ballY, ballSpeedY, ballSpeedX;
-        let secondBalls = [];
-        let goldenBallX, goldenBallY, goldenBallSpeedY, goldenBallActive = false;
-        let platformX, platformY;
-        let isGameOver = false;
-        let score = 0;
-        let playerName = '';
-        let ballColor = '#ffffff';
-        let secondBallColor = '#ff0000';
-        let goldenBallColor = '#ffd700';
-        let bgColor = '#000000';
-        let imgX = 2;
-        let imgSpeed = 3;
-        let imgSpeedMultiplier = 0.7; // Reduced multiplier
-        let secondBallCounter = 0;
-        let originalImgSpeed = imgSpeed;
-        let maxBallSpeed = 10;
-        let maxImgSpeed = 8;
-        let teleport = false; // Variable to manage teleportation
-        let teleportInterval;
+    ws.onopen = () => {
+        console.log('WebSocket connection established');
+    };
 
-        const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
+    ws.onmessage = (event) => {
+        console.log('Received command:', event.data);
 
-        // Load images
-        const img = new Image();
-        const platformImg = new Image();
-        const gameOverImg = new Image();
-        let currentImgSrc = 'B1.png'; // Default image source
-
-        img.src = currentImgSrc;
-        platformImg.src = 'B2.png';
-        gameOverImg.src = 'B3.png';
-
-        function resetBall() {
-            ballX = imgX;
-            ballY = 0;
-            ballSpeedY = ballSpeed;
-            ballSpeedX = (Math.random() + 1.2) * 4;
+        switch (event.data) {
+            case 'left':
+                platformX -= 10;
+                break;
+            case 'right':
+                platformX += 10;
+                break;
+            default:
+                console.log('Unknown command:', event.data);
+                break;
         }
+        
+        // Plattform innerhalb der Grenzen halten
+        if (platformX < 0) platformX = 0;
+        if (platformX > canvas.width - PLATFORM_WIDTH) platformX = canvas.width - PLATFORM_WIDTH;
+    };
 
-        function resetSecondBalls() {
-            for (let i = 0; i < 2; i++) {
-                secondBalls.push({
-                    x: imgX,
-                    y: 0,
-                    speedY: ballSpeed * 0.4,
-                    speedX: (Math.random() - 0.5) * 2
-                });
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket connection closed');
+    };
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        drawBall(ballX, ballY, ballColor);
+        secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
+        if (goldenBallActive) {
+            drawBall(goldenBallX, goldenBallY, goldenBallColor);
+        }
+        drawPlatform();
+        ctx.drawImage(img, imgX, 0, BALL_SIZE * 5, BALL_SIZE * 5);
+        if (isGameOver) {
+            if (score >= WINNING_SCORE) {
+                drawWinScreen();
+            } else {
+                drawGameOver();
             }
         }
-
-        function resetGoldenBall() {
-            goldenBallX = imgX;
-            goldenBallY = 0;
-            goldenBallSpeedY = ballSpeed * 0.75;
-            goldenBallActive = true;
-        }
-
-        function resetPlatform() {
-            platformX = (canvas.width - PLATFORM_WIDTH) / 2;
-            platformY = canvas.height - PLATFORM_HEIGHT - 10;
-        }
-
-        function resetGame() {
-            ballSpeed = 5;
-            imgSpeed = originalImgSpeed;
-            score = 0;
-            secondBallCounter = 0;
-            secondBalls = [];
-            goldenBallActive = false;
-            resetBall();
-            resetPlatform();
-            isGameOver = false;
-            currentScoreDiv.innerText = `Score: ${score}`;
-            setInterval(resetGoldenBall, GOLDEN_BALL_INTERVAL);
-        }
-
-        function drawBall(x, y, color) {
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(x, y, BALL_SIZE, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function drawPlatform() {
-            ctx.drawImage(platformImg, platformX, platformY, PLATFORM_WIDTH, PLATFORM_HEIGHT);
-        }
-
-        function drawGameOver() {
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '75px Arial';
-            ctx.fillText('GAME OVER', canvas.width / 2 - 200, canvas.height / 2);
-        }
-
-        function drawWinScreen() {
-            ctx.drawImage(gameOverImg, canvas.width / 2 - gameOverImg.width / 2, canvas.height / 2 - gameOverImg.height / 2);
-        }
-
-        function updateScoreboard() {
-            scoreboardDiv.innerHTML = '<h2>Scoreboard</h2><ol>' + scoreboard.map(entry => `<li>${entry.name}: ${entry.score}</li>`).join('') + '</ol>';
-        }
-
-        function clearScoreboard() {
-            localStorage.removeItem('scoreboard');
-            scoreboard.length = 0;
-            updateScoreboard();
-        }
-
-        function update() {
-            if (isGameOver) return;
-
-            ballY += ballSpeedY;
-            ballX += ballSpeedX;
-
-            secondBalls.forEach((ball, index) => {
-                ball.y += ball.speedY;
-                ball.x += ball.speedX;
-
-                if (ball.x <= 0 || ball.x >= canvas.width - BALL_SIZE) {
-                    ball.speedX = -ball.speedX;
-                }
-
-                if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
-                    imgSpeed = Math.min(maxImgSpeed, imgSpeed + 4); // Increase image speed with max limit
-                    setTimeout(() => {
-                        imgSpeed = originalImgSpeed; // Reset image speed after 5 seconds
-                    }, 5000);
-                    secondBalls.splice(index, 2);
-                } else if (ball.y > canvas.height) {
-                    secondBalls.splice(index, 2);
-                }
-            });
-
-            if (goldenBallActive) {
-                goldenBallY += goldenBallSpeedY;
-                if (goldenBallY + BALL_SIZE >= platformY && goldenBallX >= platformX && goldenBallX <= platformX + PLATFORM_WIDTH) {
-                    score += GOLDEN_BALL_SCORE;
-                    currentScoreDiv.innerText = `Score: ${score}`;
-                    goldenBallActive = false;
-
-                    if (score >= WINNING_SCORE) {
-                        isGameOver = true;
-                        drawWinScreen();
-                        scoreboard.push({ name: playerName, score });
-                        scoreboard.sort((a, b) => b.score - a.score);
-                        if (scoreboard.length > 10) {
-                            scoreboard.pop();
-                        }
-                        localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-                        updateScoreboard();
-                        return;
-                    }
-                } else if (goldenBallY > canvas.height) {
-                    goldenBallActive = false;
-                }
-            }
-
-            imgX += imgSpeed;
-            if (imgX <= 0 || imgX >= canvas.width - BALL_SIZE * 2) {
-                imgSpeed = -imgSpeed;
-            }
-
-            if (ballX <= 0 || ballX >= canvas.width - BALL_SIZE) {
-                ballSpeedX = -ballSpeedX;
-            }
-
-            if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
-                score++;
-                ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
-                imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
-                resetBall();
-                currentScoreDiv.innerText = `Score: ${score}`;
-                secondBallCounter++;
-                if (secondBallCounter % 3 === 0) { // Reduced interval to make them appear more often
-                    resetSecondBalls();
-                }
-
-                if (score >= WINNING_SCORE) {
-                    isGameOver = true;
-                    drawWinScreen();
-                    scoreboard.push({ name: playerName, score });
-                    scoreboard.sort((a, b) => b.score - a.score);
-                    if (scoreboard.length > 10) {
-                        scoreboard.pop();
-                    }
-                    localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-                    updateScoreboard();
-                    return;
-                }
-            } else if (ballY > canvas.height) {
-                isGameOver = true;
-                scoreboard.push({ name: playerName, score });
-                scoreboard.sort((a, b) => b.score - a.score);
-                if (scoreboard.length > 10) {
-                    scoreboard.pop();
-                }
-                localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-                updateScoreboard();
-                return;
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            drawBall(ballX, ballY, ballColor);
-            secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
-            if (goldenBallActive) {
-                drawBall(goldenBallX, goldenBallY, goldenBallColor);
-            }
-            drawPlatform();
-            ctx.drawImage(img, imgX, 0, BALL_SIZE * 5, BALL_SIZE * 5);
-            if (isGameOver) {
-                if (score >= WINNING_SCORE) {
-                    drawWinScreen();
-                } else {
-                    drawGameOver();
-                }
-            }
-        }
-
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        function startGame() {
-            startScreen.style.display = 'none';
-            nameInput.style.display = 'block';
-            nameInput.focus();
-        }
-
-        nameInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                playerName = nameInput.value.trim();
-                if (playerName.toLowerCase() === 'clear') {
-                    clearScoreboard();
-                    nameInput.value = '';
-                } else {
-                    nameInput.style.display = 'none';
-                    resetGame();
-                    gameLoop();
-                }
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === ' ' || e.key === 'Spacebar') {
-                location.reload();
-            }
-        });
-
-        startScreen.addEventListener('click', startGame);
-        startScreen.addEventListener('keydown', startGame);
-
-        updateScoreboard();
-
-        option1Button.addEventListener('click', () => {
-            currentImgSrc = 'B1.png';
-            img.src = currentImgSrc;
-            teleport = false;
-            menuScreen.style.display = 'none';
-            startScreen.style.display = 'flex';
-        });
-
-        option2Button.addEventListener('click', () => {
-            currentImgSrc = 'B4.png';
-            img.src = currentImgSrc;
-            teleport = true;
-            teleportInterval = setInterval(() => {
-                imgX = Math.random() * (canvas.width - BALL_SIZE * 2);
-            }, 4000); // Teleport every 4 seconds
-            menuScreen.style.display = 'none';
-            startScreen.style.display = 'flex';
-        });
-
-        // WebSocket client for game
-const ws = new WebSocket('wss://scoreboard4.glitch.me');
-
-ws.onopen = () => {
-    console.log('WebSocket connection established');
-    ws.send('game');
-};
-
-ws.onmessage = (event) => {
-    // Überprüfen, ob die empfangene Nachricht ein Blob ist
-    if (event.data instanceof Blob) {
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            const jsonString = e.target.result;
-            const command = JSON.stringify(jsonString);
-
-            // Konvertieren des Buffers in einen String
-            const commandString = new TextDecoder().decode(new Uint8Array(command.data));
-
-            console.log(`Received command: ${commandString}`); // Ausgabe des empfangenen Befehls
-
-            // Verarbeiten des Befehls
-            if (commandString === 'left') {
-                console.log('Moving platform left');
-                platformX -= 20;
-                if (platformX < 0) platformX = 0;
-            } else if (commandString === 'right') {
-                console.log('Moving platform right');
-                platformX += 20;
-                if (platformX > canvas.width - PLATFORM_WIDTH) platformX = canvas.width - PLATFORM_WIDTH;
-            }
-        };
-
-        reader.onerror = (error) => {
-            console.error('Error reading Blob:', error);
-        };
-
-        reader.readAsText(event.data);
-    } else {
-        console.log('Received non-Blob data:', event.data);
     }
-};
 
-ws.onerror = (error) => {
-    console.error('WebSocket error:', error);
-};
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
 
-ws.onclose = () => {
-    console.log('WebSocket connection closed');
-};
-
-    </script>
-</body>
-</html>
+    // Starte das Spiel
+    resetGame();
+    gameLoop();
+</script>
