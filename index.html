@@ -272,13 +272,6 @@
             nameInput.focus();
         }
 
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            platformX = e.clientX - rect.left - PLATFORM_WIDTH / 2;
-            if (platformX < 0) platformX = 0;
-            if (platformX > canvas.width - PLATFORM_WIDTH) platformX = canvas.width - PLATFORM_WIDTH;
-        });
-
         nameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 playerName = nameInput.value.trim();
@@ -324,7 +317,7 @@
         });
 
         // WebSocket client for game
-        const ws = new WebSocket('wss://scoreboard4.glitch.me');
+        const ws = new WebSocket('wss://your-glitch-project-name.glitch.me');
         ws.onopen = () => {
             console.log('WebSocket connection established');
             ws.send('game');
