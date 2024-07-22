@@ -1,19 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controller</title>
-  <link rel="stylesheet" href="style.css">
-  <script defer src="controller.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Controller</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            padding: 20px;
+            margin: 10px;
+            font-size: 24px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <h1>Game Controller</h1>
-  <div id="controls">
-    <button id="left">Left</button>
-    <button id="right">Right</button>
-    <button id="up">Up</button>
-    <button id="down">Down</button>
-  </div>
+    <button id="leftButton">Left</button>
+    <button id="rightButton">Right</button>
+    <script>
+        // WebSocket client for controller
+        const ws = new WebSocket('wss://your-glitch-project-name.glitch.me');
+        ws.onopen = () => {
+            ws.send('controller');
+        };
+
+        document.getElementById('leftButton').addEventListener('click', () => {
+            ws.send('left');
+        });
+
+        document.getElementById('rightButton').addEventListener('click', () => {
+            ws.send('right');
+        });
+    </script>
 </body>
 </html>
