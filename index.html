@@ -5,13 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ball Catch Game</title>
     <style>
-        /* existing styles */
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            position: relative;
+        }
+        #nameInput {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px;
+            font-size: 20px;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+            outline: none;
+            display: none; /* Initially hidden */
+        }
+        #nameInput::placeholder {
+            color: #bbb;
+        }
+        #scoreboard {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            text-align: left;
+        }
+        #currentScore {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+        }
+        #menuScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('B9.png') no-repeat center center fixed; /* Menu background image */
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        #menuScreen button {
+            padding: 20px;
+            margin: 10px;
+            font-size: 24px;
+            border: none; /* Remove border */
+            cursor: pointer;
+            background-size: cover;
+            width: 300px; /* Increased width */
+            height: 150px; /* Increased height */
+            color: transparent; /* Hide button text */
+        }
+        #option1 {
+            background: url('B10.png') no-repeat center center;
+        }
+        #option2 {
+            background: url('B11.png') no-repeat center center;
+        }
+        #option3 {
+            background: url('B12.png') no-repeat center center;
+        }
     </style>
 </head>
 <body>
     <div id="menuScreen">
-        <button id="option1">Game Option 1</button>
-        <button id="option2">Game Option 2</button>
+        <button id="option1"></button>
+        <button id="option2"></button>
+        <button id="option3"></button>
     </div>
     <div id="startScreen" style="display: none;">
         <img src="StartBild.png" alt="Start Screen">
@@ -30,6 +108,7 @@
         const menuScreen = document.getElementById('menuScreen');
         const option1Button = document.getElementById('option1');
         const option2Button = document.getElementById('option2');
+        const option3Button = document.getElementById('option3');
 
         const BALL_SIZE = 20;
         const PLATFORM_WIDTH = 100;
@@ -58,6 +137,7 @@
         let maxImgSpeed = 8;
         let teleport = false; // Variable to manage teleportation
         let teleportInterval;
+        let playerControlled = false; // Variable for player control in two-player mode
 
         const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
 
@@ -65,11 +145,16 @@
         const img = new Image();
         const platformImg = new Image();
         const gameOverImg = new Image();
+        const bgImg1 = new Image();
+        const bgImg2 = new Image();
         let currentImgSrc = 'B1.png'; // Default image source
+        let currentBgImg = null; // Variable to hold current background image
 
         img.src = currentImgSrc;
         platformImg.src = 'B2.png';
         gameOverImg.src = 'B3.png';
+        bgImg1.src = 'B5.png'; // Background for option 3
+        bgImg2.src = 'B8.png'; // Background for option 2
 
         function resetBall() {
             ballX = imgX;
@@ -161,23 +246,9 @@
                 }
 
                 if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
-                    imgSpeed = Math.min(maxImgSpeed, imgSpeed + 4); // Increase image speed with max limit
-                    setTimeout(() => {
-                        imgSpeed = originalImgSpeed; // Reset image speed after 5 seconds
-                    }, 5000);
-                    secondBalls.splice(index, 2);
-                } else if (ball.y > canvas.height) {
-                    secondBalls.splice(index, 2);
-                }
-            });
-
-            if (goldenBallActive) {
-                goldenBallY += goldenBallSpeedY;
-                if (goldenBallY + BALL_SIZE >= platformY && goldenBallX >= platformX && goldenBallX <= platformX + PLATFORM_WIDTH) {
-                    score += GOLDEN_BALL_SCORE;
+                    secondBalls.splice(index, 1);
+                    score++;
                     currentScoreDiv.innerText = `Score: ${score}`;
-                    goldenBallActive = false;
-
                     if (score >= WINNING_SCORE) {
                         isGameOver = true;
                         drawWinScreen();
@@ -188,47 +259,31 @@
                         }
                         localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                         updateScoreboard();
-                        return;
                     }
-                } else if (goldenBallY > canvas.height) {
-                    goldenBallActive = false;
                 }
-            }
 
-            imgX += imgSpeed;
-            if (imgX <= 0 || imgX >= canvas.width - BALL_SIZE * 2) {
-                imgSpeed = -imgSpeed;
-            }
+                if (ball.y > canvas.height) {
+                    secondBalls.splice(index, 1);
+                }
+            });
 
             if (ballX <= 0 || ballX >= canvas.width - BALL_SIZE) {
                 ballSpeedX = -ballSpeedX;
             }
 
             if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
+                ballSpeedY = -ballSpeed;
                 score++;
-                ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
-                imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
-                resetBall();
                 currentScoreDiv.innerText = `Score: ${score}`;
-                secondBallCounter++;
-                if (secondBallCounter % 3 === 0) { // Reduced interval to make them appear more often
-                    resetSecondBalls();
-                }
-
                 if (score >= WINNING_SCORE) {
                     isGameOver = true;
                     drawWinScreen();
-                    scoreboard.push({ name: playerName, score });
-                    scoreboard.sort((a, b) => b.score - a.score);
-                    if (scoreboard.length > 10) {
-                        scoreboard.pop();
-                    }
-                    localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-                    updateScoreboard();
-                    return;
                 }
-            } else if (ballY > canvas.height) {
+            }
+
+            if (ballY > canvas.height) {
                 isGameOver = true;
+                drawGameOver();
                 scoreboard.push({ name: playerName, score });
                 scoreboard.sort((a, b) => b.score - a.score);
                 if (scoreboard.length > 10) {
@@ -236,114 +291,177 @@
                 }
                 localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                 updateScoreboard();
-                return;
             }
-        }
 
-        function draw() {
+            if (goldenBallActive) {
+                goldenBallY += goldenBallSpeedY;
+                if (goldenBallY + BALL_SIZE >= platformY && goldenBallX >= platformX && goldenBallX <= platformX + PLATFORM_WIDTH) {
+                    goldenBallActive = false;
+                    score += GOLDEN_BALL_SCORE;
+                    currentScoreDiv.innerText = `Score: ${score}`;
+                    if (score >= WINNING_SCORE) {
+                        isGameOver = true;
+                        drawWinScreen();
+                    }
+                }
+
+                if (goldenBallY > canvas.height) {
+                    goldenBallActive = false;
+                }
+            }
+
+            imgX += imgSpeed * imgSpeedMultiplier;
+            if (imgX >= canvas.width - img.width || imgX <= 0) {
+                imgSpeed = -imgSpeed;
+            }
+
+            if (secondBallCounter >= 100) {
+                resetSecondBalls();
+                secondBallCounter = 0;
+            } else {
+                secondBallCounter++;
+            }
+
+            if (teleport && !isGameOver) {
+                platformX = Math.random() * (canvas.width - PLATFORM_WIDTH);
+            }
+
+            if (playerControlled && !isGameOver) {
+                if (leftPressed && platformX > 0) {
+                    platformX -= 7;
+                }
+                if (rightPressed && platformX < canvas.width - PLATFORM_WIDTH) {
+                    platformX += 7;
+                }
+            }
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentBgImg, 0, 0, canvas.width, canvas.height); // Draw current background image
             drawBall(ballX, ballY, ballColor);
             secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
             if (goldenBallActive) {
                 drawBall(goldenBallX, goldenBallY, goldenBallColor);
             }
+            ctx.drawImage(img, imgX, 0, BALL_SIZE * 2, BALL_SIZE * 2);
             drawPlatform();
-            ctx.drawImage(img, imgX, 0, BALL_SIZE * 5, BALL_SIZE * 5);
-            if (isGameOver) {
-                if (score >= WINNING_SCORE) {
-                    drawWinScreen();
-                } else {
-                    drawGameOver();
-                }
+        }
+
+        setInterval(update, 1000 / 60);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && isGameOver) {
+                resetGame();
             }
-        }
+            if (e.key === 'ArrowLeft') {
+                leftPressed = true;
+            }
+            if (e.key === 'ArrowRight') {
+                rightPressed = true;
+            }
+        });
 
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft') {
+                leftPressed = false;
+            }
+            if (e.key === 'ArrowRight') {
+                rightPressed = false;
+            }
+        });
 
-        function startGame() {
-            startScreen.style.display = 'none';
+        function showNameInput() {
             nameInput.style.display = 'block';
             nameInput.focus();
         }
 
-        nameInput.addEventListener('keydown', (e) => {
+        function hideNameInput() {
+            nameInput.style.display = 'none';
+        }
+
+        nameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 playerName = nameInput.value.trim();
-                if (playerName.toLowerCase() === 'clear') {
-                    clearScoreboard();
-                    nameInput.value = '';
-                } else {
-                    nameInput.style.display = 'none';
+                if (playerName) {
+                    hideNameInput();
+                    startScreen.style.display = 'none';
                     resetGame();
-                    gameLoop();
                 }
             }
         });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === ' ' || e.key === 'Spacebar') {
-                location.reload();
+        menuScreen.addEventListener('click', (e) => {
+            if (e.target.id === 'option1') {
+                currentImgSrc = 'B1.png';
+                currentBgImg = new Image();
+                currentBgImg.src = currentImgSrc;
+                img.src = currentImgSrc;
+                menuScreen.style.display = 'none';
+                showNameInput();
+            } else if (e.target.id === 'option2') {
+                ballColor = '#ffffff';
+                secondBallColor = '#ff0000';
+                goldenBallColor = '#ffd700';
+                bgColor = '#000000';
+                currentBgImg = bgImg2;
+                ballSpeed = 3; // Example: increase ball speed
+                imgSpeed = 2; // Example: increase image speed
+                resetGame();
+                menuScreen.style.display = 'none';
+                showNameInput();
+            } else if (e.target.id === 'option3') {
+                ballColor = '#000000';
+                secondBallColor = '#ffffff';
+                goldenBallColor = '#0000ff';
+                bgColor = '#ffffff';
+                currentBgImg = bgImg1;
+                ballSpeed = 7; // Example: increase ball speed
+                imgSpeed = 5; // Example: increase image speed
+                resetGame();
+                menuScreen.style.display = 'none';
+                showNameInput();
             }
         });
-
-        startScreen.addEventListener('click', startGame);
-        startScreen.addEventListener('keydown', startGame);
 
         updateScoreboard();
 
-        option1Button.addEventListener('click', () => {
-            currentImgSrc = 'B1.png';
-            img.src = currentImgSrc;
-            teleport = false;
-            menuScreen.style.display = 'none';
-            startScreen.style.display = 'flex';
-        });
+        // New Functionality for WebSocket and S1 variable
+        let S1 = 0;
+        let ws;
 
-        option2Button.addEventListener('click', () => {
-            currentImgSrc = 'B4.png';
-            img.src = currentImgSrc;
-            teleport = true;
-            teleportInterval = setInterval(() => {
-                imgX = Math.random() * (canvas.width - BALL_SIZE * 2);
-            }, 4000); // Teleport every 4 seconds
-            menuScreen.style.display = 'none';
-            startScreen.style.display = 'flex';
-        });
+        function initializeWebSocket() {
+            ws = new WebSocket('ws://your-websocket-server-url'); // Replace with your WebSocket server URL
 
-        // WebSocket client for game
-        const ws = new WebSocket('wss://ballcatch.glitch.me');
-        ws.onopen = () => {
-            console.log('WebSocket connection established');
-            ws.send('game');
-        };
+            ws.onopen = function() {
+                console.log('WebSocket connection established');
+                incrementScoreViaWebSocket();
+            };
 
-        ws.onmessage = (event) => {
-            const command = event.data;
-            console.log(`Received command: ${command}`); // Log received command to console
-            if (command === '{"type":"Buffer","data":[108,101,102,116]}') {
-                console.log('Moving platform left');
-                platformX -= 40;
-                if (platformX < 0) platformX = 0;
-            } else if (command === '{"type":"Buffer","data":[114,105,103,104,116]}') {
-                console.log('Moving platform right');
-                platformX += 40;
-                if (platformX > canvas.width - PLATFORM_WIDTH) platformX = canvas.width - PLATFORM_WIDTH;
-            }
-        };
+            ws.onmessage = function(event) {
+                console.log('Message from server:', event.data);
+            };
 
-        ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
+            ws.onclose = function() {
+                console.log('WebSocket connection closed');
+            };
 
-        ws.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        function incrementScoreViaWebSocket() {
+            const intervalId = setInterval(() => {
+                if (S1 <= score) {
+                    clearInterval(intervalId);
+                } else {
+                    ws.send('Increment');
+                    S1++;
+                }
+            }, );
+        }
+
+        // Initialize WebSocket connection when the script loads
+        initializeWebSocket();
     </script>
 </body>
 </html>
