@@ -75,8 +75,11 @@
     <div id="warteScreen" style="display: none; position: absolute";>
         <img src="B13.png" alt="Waiting Screen">
     </div>
-    <div id="QRCodeSeite" style="display: none; position: absolute";>
+    <div id="QRCodeSeite1" style="display: none; position: absolute";>
         <img src="QRP1.png" alt="QR Code">
+    </div>
+    <div id="QRCodeSeite2" style="display: none; position: absolute";>
+        <img src="QRP2.png" alt="QR Code2">
     </div>
     <canvas id="gameCanvas" width="1280" height="700"></canvas>
     <input type="text" id="nameInput" placeholder="Enter your name">
@@ -223,7 +226,7 @@
         start.addEventListener('click', () => {
             Music.pause();
             StartButton.style.display = 'none';
-            QRCodeSeite.style.display = 'flex';
+            QRCodeSeite1.style.display = 'flex';
             startScreen.style.display = 'none';
         })
 
@@ -548,7 +551,7 @@ function processWebSocketMessage(message) {
             teleport = false;
             playerControlled = false;
             startScreen.style.display = 'none';
-            QRCodeSeite.style.display = 'none';
+            QRCodeSeite1.style.display = 'none';
             break;
         case 'Option2':
             startScreen.style.display = 'none'; // StartBild.png entfernen
@@ -567,7 +570,11 @@ function processWebSocketMessage(message) {
             break;
         case 'Option3':
             startScreen.style.display = 'none'; // StartBild.png entfernen
-            warteScreen.style.display = 'flex'; 
+            warteScreen.style.display = 'none'; 
+            QRCodeSeite2.style.display = 'flex';
+            break;
+        case '2controller':
+            warteScreen.style.display = 'flex';
             break;
         case 'clear':
             clearScoreboard();
