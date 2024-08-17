@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Catch Game</title>
+    <style>
+         #scoreboard {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="scoreboard"></div> 
+    <script>
+    const scoreboardDiv = document.getElementById('scoreboard');
+    const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
+
+    let score = 0;
+    let playerName = '';
+
+    function updateScoreboard() {
+            scoreboardDiv.innerHTML = '<h2>Scoreboard</h2><ol>' + scoreboard.map(entry => `<li>${entry.name}: ${entry.score}</li>`).join('') + '</ol>';
+        }
+
+    function clearScoreboard() {
+            localStorage.removeItem('scoreboard');
+            scoreboard.length = 0;
+            updateScoreboard();
+        }
+updateScoreboard();
+initializeWebSocket();
+            function initializeWebSocket() {
+            ws = new WebSocket('wss://ballcatch.glitch.me'); // Replace with your WebSocket server URL
+
+            ws.onopen = function() {
+                console.log('WebSocket connection established');
+            };
+
+            ws.onmessage = function(event) {
+                console.log('Message from server:', event.data);
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket connection closed');
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+
+            function decodeBuffer(data) {
+    return String.fromCharCode.apply(null, new Uint8Array(data));
+}
+
+// WebSocket-Nachrichten verarbeiten
+ws.onmessage = function(event) {
+    if (event.data instanceof Blob) {
+        event.data.arrayBuffer().then(buffer => {
+            const message = decodeBuffer(buffer);
+            processWebSocketMessage(message);
+        });
+    } else if (event.data instanceof ArrayBuffer) {
+        const message = decodeBuffer(event.data);
+        processWebSocketMessage(message);
+    } else if (typeof event.data === 'string') {
+        let message = event.data;
+
+        try {
+            // Versuche, den String als JSON zu parsen, falls er als Buffer gesendet wurde
+            let parsedData = JSON.parse(event.data);
+            if (parsedData.type === 'Buffer' && Array.isArray(parsedData.data)) {
+                message = decodeBuffer(parsedData.data);
+            }
+        } catch (error) {
+            // Falls das Parsen fehlschlägt, verwenden wir den ursprünglichen String
+            message = event.data;
+        }
+
+        processWebSocketMessage(message);
+    }
+};            
+        
+            }
+    function processWebSocketMessage(message) {
+        console.log('Message from server:', message);
+        if (message.startsWith('Score:')) {
+            score = message.substring(6).trim();
+            console.log(score);
+            scoreboard.push({ name: playerName, score });
+            scoreboard.sort((a, b) => b.score - a.score);
+            if (scoreboard.length > 20) {
+                scoreboard.pop();
+                updateScoreboard();
+        }
+        if (message.startsWith('Playername:')) {
+            playerName = message.substring(11).trim();
+            console.log(playerName);
+            scoreboard.push({ name: playerName, score });
+            scoreboard.sort((a, b) => b.score - a.score);
+            if (scoreboard.length > 20) {
+                scoreboard.pop();
+                updateScoreboard();
+                }
+            updateScoreboard();
+        }else{
+
+
+            switch (message) {
+
+            case 'Score':
+
+                break;
+            case 'playername':
+
+                break;
+}}}}
+    
+
+
+</script>
