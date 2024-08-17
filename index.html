@@ -575,6 +575,7 @@ function processWebSocketMessage(message) {
             break;
         case '2controller':
             warteScreen.style.display = 'flex';
+            QRCodeSeite2.style.display = 'none';
             break;
         case 'clear':
             clearScoreboard();
