@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mobile Controller</title>
     <style>
         body {
@@ -48,9 +48,10 @@
             border: none; /* Remove border */
             cursor: pointer;
             background-size: cover;
-            width: 200px;
+            width: 600px;
             height: 100px;
             color: transparent; /* Hide button text */
+            position: relative;
         }
         #option1 {
             background: url('B10.png') no-repeat center center;
@@ -209,6 +210,8 @@
         option3Button.addEventListener('click', () => {
             ws.send('Option3');
             menuScreen.style.display = 'none';
+            nameInputSection.style.display = 'none';
+            controlSection.style.display = 'flex';
         });
     </script>
 </body>
