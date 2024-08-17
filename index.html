@@ -15,7 +15,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #222;
+            background-color: rgb(0, 204, 255);
             color: #fff;
             font-family: Arial, sans-serif;
             text-align: center;
@@ -49,7 +49,7 @@
             right: 10px;
             font-size: 20px;
         }
-        #menuScreen {
+        #Nameeingabe {
             position: absolute;
             top: 0;
             left: 0;
@@ -57,47 +57,23 @@
             height: 100%;
             background: url('B9.png') no-repeat center center fixed; /* Menu background image */
             background-size: cover;
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 10;
         }
-        #menuScreen button {
-            padding: 20px;
-            margin: 10px;
-            font-size: 24px;
-            border: none; /* Remove border */
-            cursor: pointer;
-            background-size: cover;
-            width: 300px; /* Increased width */
-            height: 150px; /* Increased height */
-            color: transparent; /* Hide button text */
-        }
-        #option1 {
-            background: url('B10.png') no-repeat center center;
-        }
-        #option2 {
-            background: url('B11.png') no-repeat center center;
-        }
-        #option3 {
-            background: url('B12.png') no-repeat center center;
-        }
     </style>
 </head>
 <body>
-    <div id="menuScreen">
-        <button id="option1"></button>
-        <button id="option2"></button>
-        <button id="option3"></button>
-    </div>
-    <div id="startScreen" style="display: none;">
+    <div id="startScreen" style="display: flex;">
         <img src="StartBild.png" alt="Start Screen">
     </div>
     <canvas id="gameCanvas" width="1280" height="700"></canvas>
     <input type="text" id="nameInput" placeholder="Enter your name">
     <div id="scoreboard"></div>
     <div id="currentScore"></div>
+    <audio id="musik1" src="sounds/M1.mp3" loop></audio>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -105,10 +81,7 @@
         const scoreboardDiv = document.getElementById('scoreboard');
         const currentScoreDiv = document.getElementById('currentScore');
         const startScreen = document.getElementById('startScreen');
-        const menuScreen = document.getElementById('menuScreen');
-        const option1Button = document.getElementById('option1');
-        const option2Button = document.getElementById('option2');
-        const option3Button = document.getElementById('option3');
+        const Nameeingabe = document.getElementById('starScreen');
 
         const BALL_SIZE = 20;
         const PLATFORM_WIDTH = 100;
@@ -116,7 +89,8 @@
         const GOLDEN_BALL_INTERVAL = 5000;
         const GOLDEN_BALL_SCORE = 5;
         const WINNING_SCORE = 300;
-        let ballSpeed = 5;
+        const Music = document.getElementById('musik1');
+        let ballSpeed = 0;
         let ballX, ballY, ballSpeedY, ballSpeedX;
         let secondBalls = [];
         let goldenBallX, goldenBallY, goldenBallSpeedY, goldenBallActive = false;
@@ -133,11 +107,14 @@
         let imgSpeedMultiplier = 0.7; // Reduced multiplier
         let secondBallCounter = 0;
         let originalImgSpeed = imgSpeed;
-        let maxBallSpeed = 10;
+        let maxBallSpeed = 0;
         let maxImgSpeed = 8;
         let teleport = false; // Variable to manage teleportation
         let teleportInterval;
         let playerControlled = false; // Variable for player control in two-player mode
+        let S2 = 1;
+        let Wert = 0;
+        let musicStarted = false;
 
         const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
 
@@ -232,7 +209,10 @@
         }
 
         function update() {
-            if (isGameOver) return;
+            if (isGameOver) 
+                return;
+
+             
 
             ballY += ballSpeedY;
             ballX += ballSpeedX;
@@ -246,190 +226,204 @@
                 }
 
                 if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
-                    secondBalls.splice(index, 1);
-                    score++;
+                    score -= 10; // Deduct 10 points
                     currentScoreDiv.innerText = `Score: ${score}`;
+                    secondBalls.splice(index, 1);
+
+                    if (score < 0) {
+                        isGameOver = true;
+                        drawGameOver();
+                        scoreboard.push({ name: playerName, score });
+                        scoreboard.sort((a, b) => b.score - a.score);
+                        if (scoreboard.length > 20) {
+                            scoreboard.pop();
+                        }
+                        localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+                        updateScoreboard();
+                        return;
+                    }
+                } else if (ball.y > canvas.height) {
+                    secondBalls.splice(index, 1);
+                }
+            });
+
+            if (goldenBallActive) {
+                goldenBallY += goldenBallSpeedY;
+                if (goldenBallY + BALL_SIZE >= platformY && goldenBallX >= platformX && goldenBallX <= platformX + PLATFORM_WIDTH) {
+                    score += GOLDEN_BALL_SCORE;
+                    currentScoreDiv.innerText = `Score: ${score}`;
+                    goldenBallActive = false;
+
                     if (score >= WINNING_SCORE) {
                         isGameOver = true;
                         drawWinScreen();
                         scoreboard.push({ name: playerName, score });
                         scoreboard.sort((a, b) => b.score - a.score);
-                        if (scoreboard.length > 10) {
+                        if (scoreboard.length > 20) {
                             scoreboard.pop();
                         }
                         localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                         updateScoreboard();
+                        return;
                     }
+                } else if (goldenBallY > canvas.height) {
+                    goldenBallActive = false;
                 }
+            }
 
-                if (ball.y > canvas.height) {
-                    secondBalls.splice(index, 1);
+            if (!playerControlled) {
+                imgX += imgSpeed;
+                if (imgX <= 0 || imgX >= canvas.width - BALL_SIZE * 2) {
+                    imgSpeed = -imgSpeed;
                 }
-            });
+            }
 
             if (ballX <= 0 || ballX >= canvas.width - BALL_SIZE) {
                 ballSpeedX = -ballSpeedX;
             }
 
             if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
-                ballSpeedY = -ballSpeed;
                 score++;
+                ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
+                imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
+                resetBall();
                 currentScoreDiv.innerText = `Score: ${score}`;
+                secondBallCounter++;
+                if (secondBallCounter % 3 === 0) { // Reduced interval to make them appear more often
+                    resetSecondBalls();
+                }
+
+                // Increase speed at specific score thresholds
+                if (score === 25 || score === 50 || score === 100) {
+                    ballSpeed = Math.min(maxBallSpeed, ballSpeed * 1.5);
+                    if (!teleport) {
+                        imgSpeed = Math.min(maxImgSpeed, imgSpeed * 1.5);
+                    } else {
+                        clearInterval(teleportInterval);
+                        let newInterval = 4000 / (Math.pow(1.5, Math.floor(score / 25)));
+                        teleportInterval = setInterval(() => {
+                            imgX = Math.random() * (canvas.width - BALL_SIZE * 2);
+                        }, newInterval);
+                    }
+                }
+
                 if (score >= WINNING_SCORE) {
                     isGameOver = true;
                     drawWinScreen();
+                    ws.send("clear");
+                    scoreboard.push({ name: playerName, score });
+                    scoreboard.sort((a, b) => b.score - a.score);
+                    if (scoreboard.length > 20) {
+                        scoreboard.pop();
+                    }
+                    localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+                    updateScoreboard();
+                    return;
                 }
-            }
-
-            if (ballY > canvas.height) {
+            } else if (ballY > canvas.height) {
                 isGameOver = true;
                 drawGameOver();
                 scoreboard.push({ name: playerName, score });
                 scoreboard.sort((a, b) => b.score - a.score);
-                if (scoreboard.length > 10) {
+                if (scoreboard.length > 20) {
                     scoreboard.pop();
                 }
                 localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                 updateScoreboard();
+                return;
             }
+        }
 
-            if (goldenBallActive) {
-                goldenBallY += goldenBallSpeedY;
-                if (goldenBallY + BALL_SIZE >= platformY && goldenBallX >= platformX && goldenBallX <= platformX + PLATFORM_WIDTH) {
-                    goldenBallActive = false;
-                    score += GOLDEN_BALL_SCORE;
-                    currentScoreDiv.innerText = `Score: ${score}`;
-                    if (score >= WINNING_SCORE) {
-                        isGameOver = true;
-                        drawWinScreen();
-                    }
-                }
-
-                if (goldenBallY > canvas.height) {
-                    goldenBallActive = false;
-                }
-            }
-
-            imgX += imgSpeed * imgSpeedMultiplier;
-            if (imgX >= canvas.width - img.width || imgX <= 0) {
-                imgSpeed = -imgSpeed;
-            }
-
-            if (secondBallCounter >= 100) {
-                resetSecondBalls();
-                secondBallCounter = 0;
-            } else {
-                secondBallCounter++;
-            }
-
-            if (teleport && !isGameOver) {
-                platformX = Math.random() * (canvas.width - PLATFORM_WIDTH);
-            }
-
-            if (playerControlled && !isGameOver) {
-                if (leftPressed && platformX > 0) {
-                    platformX -= 7;
-                }
-                if (rightPressed && platformX < canvas.width - PLATFORM_WIDTH) {
-                    platformX += 7;
-                }
-            }
-
+        function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(currentBgImg, 0, 0, canvas.width, canvas.height); // Draw current background image
+            
+            // Draw background image if set
+            if (currentBgImg) {
+                ctx.drawImage(currentBgImg, 0, 0, canvas.width, canvas.height);
+            } else if (bgColor) {
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
             drawBall(ballX, ballY, ballColor);
             secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
             if (goldenBallActive) {
                 drawBall(goldenBallX, goldenBallY, goldenBallColor);
             }
-            ctx.drawImage(img, imgX, 0, BALL_SIZE * 2, BALL_SIZE * 2);
             drawPlatform();
+            ctx.drawImage(img, imgX, 0, BALL_SIZE * 5, BALL_SIZE * 5);
+            if (isGameOver) {
+                if (score >= WINNING_SCORE) {
+                    drawWinScreen();
+                } else {
+                    drawGameOver();
+                }
+            }
         }
 
-        setInterval(update, 1000 / 60);
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && isGameOver) {
-                resetGame();
-            }
-            if (e.key === 'ArrowLeft') {
-                leftPressed = true;
-            }
-            if (e.key === 'ArrowRight') {
-                rightPressed = true;
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowLeft') {
-                leftPressed = false;
-            }
-            if (e.key === 'ArrowRight') {
-                rightPressed = false;
-            }
-        });
-
-        function showNameInput() {
-            nameInput.style.display = 'block';
-            nameInput.focus();
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
         }
+        	
 
-        function hideNameInput() {
-            nameInput.style.display = 'none';
-        }
+            // Dynamically set button dimensions based on image sizes
+            const images = ['B10.png', 'B11.png', 'B12.png'];
+            images.forEach((src, index) => {
+            const img = new Image();
+            img.src = src;
+});
 
-        nameInput.addEventListener('keypress', (e) => {
+function startGame() {
+resetGame()
+gameLoop()
+}
+
+function playMusic() {
+   if (!musicStarted) {
+    Music.play();
+    musicStarted = true;
+   }
+
+}
+
+        nameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 playerName = nameInput.value.trim();
-                if (playerName) {
-                    hideNameInput();
-                    startScreen.style.display = 'none';
+                if (playerName.toLowerCase() === 'clear') {
+                    clearScoreboard();
+                    nameInput.value = '';
+                } else {
+                    nameInput.style.display = 'none';
                     resetGame();
+                    gameLoop();
                 }
             }
         });
 
-        menuScreen.addEventListener('click', (e) => {
-            if (e.target.id === 'option1') {
-                currentImgSrc = 'B1.png';
-                currentBgImg = new Image();
-                currentBgImg.src = currentImgSrc;
-                img.src = currentImgSrc;
-                menuScreen.style.display = 'none';
-                showNameInput();
-            } else if (e.target.id === 'option2') {
-                ballColor = '#ffffff';
-                secondBallColor = '#ff0000';
-                goldenBallColor = '#ffd700';
-                bgColor = '#000000';
-                currentBgImg = bgImg2;
-                ballSpeed = 3; // Example: increase ball speed
-                imgSpeed = 2; // Example: increase image speed
-                resetGame();
-                menuScreen.style.display = 'none';
-                showNameInput();
-            } else if (e.target.id === 'option3') {
-                ballColor = '#000000';
-                secondBallColor = '#ffffff';
-                goldenBallColor = '#0000ff';
-                bgColor = '#ffffff';
-                currentBgImg = bgImg1;
-                ballSpeed = 7; // Example: increase ball speed
-                imgSpeed = 5; // Example: increase image speed
-                resetGame();
-                menuScreen.style.display = 'none';
-                showNameInput();
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                location.reload();
+            }
+
+            if (playerControlled) {
+                if (e.key === 'a' || e.key === 'A') {
+                    imgX = Math.max(0, imgX - 10);
+                } else if (e.key === 'd' || e.key === 'D') {
+                    imgX = Math.min(canvas.width - BALL_SIZE * 5, imgX + 10);
+                }
             }
         });
 
         updateScoreboard();
 
         // New Functionality for WebSocket and S1 variable
-        let S1 = 0;
+        let S1 = 1;
         let ws;
 
         function initializeWebSocket() {
-            ws = new WebSocket('ws://your-websocket-server-url'); // Replace with your WebSocket server URL
+            ws = new WebSocket('ws://ballcatch.glitch.me'); // Replace with your WebSocket server URL
 
             ws.onopen = function() {
                 console.log('WebSocket connection established');
@@ -447,17 +441,111 @@
             ws.onerror = function(error) {
                 console.error('WebSocket error:', error);
             };
+
+            function decodeBuffer(data) {
+    return String.fromCharCode.apply(null, new Uint8Array(data));
+}
+
+// WebSocket-Nachrichten verarbeiten
+ws.onmessage = function(event) {
+    if (event.data instanceof Blob) {
+        event.data.arrayBuffer().then(buffer => {
+            const message = decodeBuffer(buffer);
+            processWebSocketMessage(message);
+        });
+    } else if (event.data instanceof ArrayBuffer) {
+        const message = decodeBuffer(event.data);
+        processWebSocketMessage(message);
+    } else if (typeof event.data === 'string') {
+        let message = event.data;
+
+        try {
+            // Versuche, den String als JSON zu parsen, falls er als Buffer gesendet wurde
+            let parsedData = JSON.parse(event.data);
+            if (parsedData.type === 'Buffer' && Array.isArray(parsedData.data)) {
+                message = decodeBuffer(parsedData.data);
+            }
+        } catch (error) {
+            // Falls das Parsen fehlschlägt, verwenden wir den ursprünglichen String
+            message = event.data;
         }
+
+        processWebSocketMessage(message);
+    }
+};
+
+function processWebSocketMessage(message) {
+    console.log('Message from server:', message);
+    if (message.startsWith('name:')) {
+        playerName = message.substring(5).trim(); // Entferne "name:" und trimme Leerzeichen
+        console.log(playerName);
+        playMusic();
+        startGame();
+        // Hier kannst du den Namen weiterverarbeiten oder in einer Variablen speichern
+        // Zum Beispiel:
+        // playerName = playerName;
+
+    } else {
+
+
+    switch (message) {
+
+        case 'right':
+            platformX = Math.min(canvas.width - PLATFORM_WIDTH, platformX + 20);
+            playMusic();
+            break;
+        case 'left':
+            platformX = Math.max(0, platformX - 20);
+            playMusic();
+            break;
+        case 'Option1':
+            startScreen.style.display = 'none'; // StartBild.png entfernen
+            currentImgSrc = 'B1.png';
+            img.src = currentImgSrc;
+            currentBgImg = bgImg1; // Hintergrundbild für Option 1 setzen
+            bgColor = '#ADD8E6'; // Hintergrundfarbe für Option 1 setzen
+            teleport = false;
+            playerControlled = false;
+            startScreen.style.display = 'none';
+            break;
+        case 'Option2':
+            startScreen.style.display = 'none'; // StartBild.png entfernen
+            currentImgSrc = 'B4.png';
+            img.src = currentImgSrc;
+            currentBgImg = bgImg2; // Hintergrundbild für Option 2 setzen
+            bgColor = '#000000'; // Hintergrundfarbe für Option 2 setzen
+            teleport = true;
+            playerControlled = false;
+            clearInterval(teleportInterval);
+            teleportInterval = setInterval(() => {
+                imgX = Math.random() * (canvas.width - BALL_SIZE * 2);
+            }, 2000); // Teleport alle 2 Sekunden
+            startScreen.style.display = 'flex';
+            break;
+        case 'Option3':
+            startScreen.style.display = 'none'; // StartBild.png entfernen
+            currentImgSrc = 'B1.png';
+            img.src = currentImgSrc;
+            currentBgImg = bgImg1; // Hintergrundbild für Option 3 setzen
+            bgColor = '#ADD8E6'; // Hintergrundfarbe für Option 3 setzen
+            teleport = false;
+            playerControlled = true;
+            startScreen.style.display = 'flex';
+            break;
+        case 'clear':
+            clearScoreboard();
+            break;
+    }
+    }
+}};
 
         function incrementScoreViaWebSocket() {
             const intervalId = setInterval(() => {
-                if (S1 <= score) {
-                    clearInterval(intervalId);
-                } else {
-                    ws.send('Increment');
+                if (S1 <= score && S2 == 1) {
+                    ws.send('increment');
                     S1++;
                 }
-            }, );
+            }, 10);
         }
 
         // Initialize WebSocket connection when the script loads
