@@ -107,8 +107,19 @@
         <button id="leftButton">Left</button>
         <button id="rightButton">Right</button>
     </div>
+    <audio id="musik1" src="M1.mp3" loop></audio>
 
     <script>
+
+        let musicStarted = false;
+        const Music = document.getElementById('musik1');
+
+        function playMusic() {
+            if (!musicStarted) {
+                Music.play();
+                musicStarted = true;
+            }
+        }
         const ws = new WebSocket('wss://ballcatch.glitch.me');
         ws.onopen = () => {
             console.log('WebSocket connection established');
@@ -128,9 +139,11 @@
 
         document.getElementById('sendNameButton').addEventListener('click', () => {
             const name = document.getElementById('nameInput').value.trim();
+            playMusic();
             if (name) {
-                console.log(`Sending name: ${name}`);
+                ws.send("Test");
                 ws.send(`name:${name}`);
+                console.log(`Sending name: ${name}`);
                 nameInputSection.style.display = 'none';
                 controlSection.style.display = 'flex';
             } else {
@@ -200,4 +213,3 @@
     </script>
 </body>
 </html>
-
