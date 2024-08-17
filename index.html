@@ -423,7 +423,7 @@ function playMusic() {
         let ws;
 
         function initializeWebSocket() {
-            ws = new WebSocket('ws://ballcatch.glitch.me'); // Replace with your WebSocket server URL
+            ws = new WebSocket('wss://ballcatch.glitch.me'); // Replace with your WebSocket server URL
 
             ws.onopen = function() {
                 console.log('WebSocket connection established');
@@ -479,7 +479,6 @@ function processWebSocketMessage(message) {
     if (message.startsWith('name:')) {
         playerName = message.substring(5).trim(); // Entferne "name:" und trimme Leerzeichen
         console.log(playerName);
-        playMusic();
         startGame();
         // Hier kannst du den Namen weiterverarbeiten oder in einer Variablen speichern
         // Zum Beispiel:
@@ -492,11 +491,9 @@ function processWebSocketMessage(message) {
 
         case 'right':
             platformX = Math.min(canvas.width - PLATFORM_WIDTH, platformX + 20);
-            playMusic();
             break;
         case 'left':
             platformX = Math.max(0, platformX - 20);
-            playMusic();
             break;
         case 'Option1':
             startScreen.style.display = 'none'; // StartBild.png entfernen
