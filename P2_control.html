@@ -118,7 +118,7 @@
         const ws = new WebSocket('wss://ballcatch.glitch.me');
         ws.onopen = () => {
             console.log('WebSocket connection established');
-            ws.send('2controller');
+            ws.send('2Player');
         };
 
         ws.onerror = (error) => {
