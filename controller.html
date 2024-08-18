@@ -87,11 +87,12 @@
             background: url('B9.png') no-repeat center center fixed; /* Control background image */
             background-size: cover;
             display: none;
-            flex-direction: column;
+            flex-direction: row;
             justify-content: center;
             align-items: center;
             z-index: 10;
         }
+
     </style>
 </head>
 <body>
@@ -107,6 +108,9 @@
     <div id="controlSection">
         <button id="leftButton">Left</button>
         <button id="rightButton">Right</button>
+    </div>
+    <div id = "bereitKnopf" style="display: 'none'">
+        <button id="bereit">Bereit</button>
     </div>
     <audio id="musik1" src="M1.mp3" loop></audio>
 
@@ -134,9 +138,15 @@
         ws.onclose = () => {
             console.log('WebSocket connection closed');
         };
-
+        const bereit = document.getElementById('bereit');
         const nameInputSection = document.getElementById('nameInputSection');
         const controlSection = document.getElementById('controlSection');
+
+        bereit.addEventListener('click', () => {
+            ws.send('Bereit');
+            bereitKnopf.style.display = 'none';
+            controlSection.style.display = 'flex';
+        })
 
         document.getElementById('sendNameButton').addEventListener('click', () => {
             const name = document.getElementById('nameInput').value.trim();
@@ -211,7 +221,8 @@
             ws.send('Option3');
             menuScreen.style.display = 'none';
             nameInputSection.style.display = 'none';
-            controlSection.style.display = 'flex';
+            controlSection.style.display = 'none';
+            bereitKnopf.style.display = 'flex';
         });
     </script>
 </body>
