@@ -125,6 +125,12 @@
                 musicStarted = true;
             }
         }
+
+        function Haptic() {
+            if(navigator.vibrate) {
+                navigator.vibrate(200);
+            }
+        }
         const ws = new WebSocket('wss://ballcatch.glitch.me');
         ws.onopen = () => {
             console.log('WebSocket connection established');
@@ -169,6 +175,7 @@
             button.addEventListener('mousedown', () => {
                 console.log(`Sending ${message} command`);
                 ws.send(message);
+                Haptic();
                 intervalId = setInterval(() => {
                     ws.send(message);
                 }, 100);
