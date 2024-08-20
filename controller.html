@@ -175,7 +175,6 @@
             button.addEventListener('mousedown', () => {
                 console.log(`Sending ${message} command`);
                 ws.send(message);
-                Haptic();
                 intervalId = setInterval(() => {
                     ws.send(message);
                 }, 100);
@@ -217,6 +216,7 @@
         option1Button.addEventListener('click', () => {
             ws.send('Option1');
             menuScreen.style.display = 'none';
+            Haptic();
         });
 
         option2Button.addEventListener('click', () => {
