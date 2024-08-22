@@ -40,6 +40,7 @@
             justify-content: center;
             align-items: center;
             z-index: 10;
+            transform: scale(0.9);
         }
 
         #menuScreen button {
@@ -73,7 +74,7 @@
             height: 100%;
             background: url('B9.png') no-repeat center center fixed; /* Name input background image */
             background-size: cover;
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -111,7 +112,7 @@
         <button id="leftButton">Left</button>
         <button id="rightButton">Right</button>
     </div>
-    <div id = "bereitKnopf" style="display: 'none'">
+    <div id = "bereitKnopf" style="display: none">
         <button id="bereit">Bereit</button>
     </div>
     <audio id="musik1" src="M1.mp3" loop></audio>
