@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mobile Controller</title>
+    <style>
+    </style>
+    <body>
+        <div id = "bereitKnopf" style="display: 'none'">
+            <button id="bereit">Bereit</button>
+        </div>
+        <script>
+        function Haptic() {
+            if(navigator.vibrate) {
+                navigator.vibrate(200);
+            }
+        }
+        const bereit = document.getElementById('bereit');
+        bereit.addEventListener('click', () => {
+            Haptic();
+        })
+    </script>
+    </body>    
+
