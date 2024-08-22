@@ -42,9 +42,8 @@
         }
 
         #menuScreen button {
-            top: 100px;
-            padding: 4px;
-            margin: 5px;
+            padding: 20px;
+            margin: 10px;
             font-size: 24px;
             border: none; /* Remove border */
             cursor: pointer;
@@ -55,13 +54,13 @@
             position: relative;
         }
         #option1 {
-            background: url('B10.1.png') no-repeat center center;
+            background: url('B10.png') no-repeat center center;
         }
         #option2 {
-            background: url('B11.1.png') no-repeat center center;
+            background: url('B11.png') no-repeat center center;
         }
         #option3 {
-            background: url('B12.1.png') no-repeat center center;
+            background: url('B12.png') no-repeat center center;
         }
 
         #nameInputSection {
@@ -177,6 +176,10 @@
                 console.log(`Sending ${message} command`);
 
 
+                if (message === 'left' | 'right' ) {
+                    Haptic();
+
+                }
                 ws.send(message);
                 intervalId = setInterval(() => {
                     ws.send(message);
