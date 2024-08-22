@@ -9,8 +9,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 60vh;
-            width: 10vh;
+            height: 100vh;
             margin: 0;
             background-color: #222;
             color: #fff;
@@ -40,30 +39,29 @@
             justify-content: center;
             align-items: center;
             z-index: 10;
-            transform: scale(0.9);
         }
 
         #menuScreen button {
-            padding: 2%;
-            margin: 1%;
+            top: 100px;
+            padding: 4px;
+            margin: 5px;
             font-size: 24px;
             border: none; /* Remove border */
             cursor: pointer;
             background-size: cover;
-            width: 70svh;
-            height: 5svh;
+            width: 600px;
+            height: 100px;
             color: transparent; /* Hide button text */
             position: relative;
-            display:flex;
         }
         #option1 {
-            background: url('B10.png') no-repeat center center;
+            background: url('B10.1.png') no-repeat center center;
         }
         #option2 {
-            background: url('B11.png') no-repeat center center;
+            background: url('B11.1.png') no-repeat center center;
         }
         #option3 {
-            background: url('B12.png') no-repeat center center;
+            background: url('B12.1.png') no-repeat center center;
         }
 
         #nameInputSection {
@@ -74,7 +72,7 @@
             height: 100%;
             background: url('B9.png') no-repeat center center fixed; /* Name input background image */
             background-size: cover;
-            display: none;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -112,7 +110,7 @@
         <button id="leftButton">Left</button>
         <button id="rightButton">Right</button>
     </div>
-    <div id = "bereitKnopf" style="display: none">
+    <div id = "bereitKnopf" style="display: 'none'">
         <button id="bereit">Bereit</button>
     </div>
     <audio id="musik1" src="M1.mp3" loop></audio>
@@ -174,8 +172,10 @@
         function handleButtonPress(buttonId, message) {
             let intervalId;
             const button = document.getElementById(buttonId);
+
             button.addEventListener('mousedown', () => {
                 console.log(`Sending ${message} command`);
+
 
                 ws.send(message);
                 intervalId = setInterval(() => {
