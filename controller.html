@@ -178,10 +178,6 @@
                 intervalId = setInterval(() => {
                     ws.send(message);
                 }, 100);
-                if (message === 'left' | 'right' ) {
-                    Haptic();
-
-                }
             });
 
             button.addEventListener('mouseup', () => {
@@ -195,6 +191,7 @@
             button.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 console.log(`Sending ${message} command`);
+                Haptic();
                 ws.send(message);
                 intervalId = setInterval(() => {
                     ws.send(message);
