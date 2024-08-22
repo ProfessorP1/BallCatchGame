@@ -171,13 +171,17 @@
         function handleButtonPress(buttonId, message) {
             let intervalId;
             const button = document.getElementById(buttonId);
-
             button.addEventListener('mousedown', () => {
                 console.log(`Sending ${message} command`);
+
                 ws.send(message);
                 intervalId = setInterval(() => {
                     ws.send(message);
                 }, 100);
+                if (message === 'left' | 'right' ) {
+                    Haptic();
+
+                }
             });
 
             button.addEventListener('mouseup', () => {
