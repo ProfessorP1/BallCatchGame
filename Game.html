@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Catch Game</title>
+    <style>
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: rgb(0, 204, 255);
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            position: relative;
+        }
+        #nameInput {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px;
+            font-size: 20px;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+            outline: none;
+            display: none; /* Initially hidden */
+        }
+        #nameInput::placeholder {
+            color: #bbb;
+        }
+        #scoreboard {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            text-align: left;
+        }
+        #currentScore {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+        }
+        #Nameeingabe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('B9.png') no-repeat center center fixed; /* Menu background image */
+            background-size: cover;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="startScreen" style="display: flex; position: absolute";>
+        <img src="StartBild.png" alt="Start Screen">
+    </div>
+    <div id="StartButton" style="display: flex; position: absolute; width: 100px; height: 50px";>
+        <button id="start">Start</button>
+    </div>
+    <div id="warteScreen" style="display: none; position: absolute";>
+        <img src="B13.png" alt="Waiting Screen">
+    </div>
+    <div id="QRCodeSeite1" style="display: none; position: absolute";>
+        <img src="QRP1.png" alt="QR Code">
+    </div>
+    <div id="QRCodeSeite2" style="display: none; position: absolute";>
+        <img src="QRP2.png" alt="QR Code2">
+    </div>
+    <canvas id="gameCanvas" width="1280" height="700"></canvas>
+    <input type="text" id="nameInput" placeholder="Enter your name">
+    <div id="scoreboard"></div>
+    <div id="currentScore"></div>
+    <audio id="musik1" src="sounds/M1.mp3" loop></audio>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const nameInput = document.getElementById('nameInput');
+        const scoreboardDiv = document.getElementById('scoreboard');
+        const currentScoreDiv = document.getElementById('currentScore');
+        const startScreen = document.getElementById('startScreen');
+        const Nameeingabe = document.getElementById('starScreen');
+
+
+        const BALL_SIZE = 20;
+        const PLATFORM_WIDTH = 100;
+        const PLATFORM_HEIGHT = 10;
+        const GOLDEN_BALL_INTERVAL = 5000;
+        const GOLDEN_BALL_SCORE = 5;
+        const WINNING_SCORE = 300;
+        const Music = document.getElementById('musik1');
+        let ballSpeed = 5;
+        let ballX, ballY, ballSpeedY, ballSpeedX;
+        let secondBalls = [];
+        let goldenBallX, goldenBallY, goldenBallSpeedX, goldenBallSpeedY, goldenBallActive = false;
+        let platformX, platformY;
+        let isGameOver = false;
+        let score = 0;
+        let playerName = '';
+        let ballColor = '#ffffff';
+        let secondBallColor = '#ff0000';
+        let goldenBallColor = '#ffd700';
+        let bgColor = '#000000';
+        let imgX = 2;
+        let imgSpeed = 3;
+        let imgSpeedMultiplier = 0.7; // Reduced multiplier
+        let secondBallCounter = 0;
+        let originalImgSpeed = imgSpeed;
+        let maxBallSpeed = 10;
+        let maxImgSpeed = 8;
+        let teleport = false; // Variable to manage teleportation
+        let teleportInterval;
+        let playerControlled = false; // Variable for player control in two-player mode
+        let S2 = 1;
+        let Wert = 0;
+        let musicStarted = false;
+        let B = 0;
+        let I = 0;
+
+        const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
+
+        // Load images
+        const img = new Image();
+        const platformImg = new Image();
+        const gameOverImg = new Image();
+        const bgImg1 = new Image();
+        const bgImg2 = new Image();
+        let currentImgSrc = 'B1.png'; // Default image source
+        let currentBgImg = null; // Variable to hold current background image
+
+        img.src = currentImgSrc;
+        platformImg.src = 'B2.png';
+        gameOverImg.src = 'B3.png';
+        bgImg1.src = 'B5.png'; // Background for option 3
+        bgImg2.src = 'B8.png'; // Background for option 2
+
+        function resetBall() {
+            ballX = imgX;
+            ballY = 0;
+            ballSpeedY = ballSpeed * 0.3;
+            ballSpeedX = (Math.random() + 1.2) * 2;
+        }
+
+        function resetSecondBalls() {
+            for (let i = 0; i < 2; i++) {
+                secondBalls.push({
+                    x: imgX,
+                    y: 0,
+                    speedY: ballSpeed * 0.2,
+                    speedX: (Math.random() - 0.5) * 1
+                });
+            }
+        }
+
+        function resetGoldenBall() {
+            goldenBallX = imgX;
+            goldenBallY = 0;
+            goldenBallSpeedY = ballSpeed * 0.3;
+            goldenBallSpeedX = Math.max((Math.random() + 1.0) * 2, 1.5);
+            goldenBallActive = true;
+        }
+
+        function resetPlatform() {
+            platformX = (canvas.width - PLATFORM_WIDTH) / 2;
+            platformY = canvas.height - PLATFORM_HEIGHT - 10;
+        }
+
+        function resetGame() {
+            ballSpeed = 2.5;
+            imgSpeed = originalImgSpeed * 0.5;
+            score = 0;
+            secondBallCounter = 0;
+            secondBalls = [];
+            goldenBallActive = false;
+            resetBall();
+            resetPlatform();
+            isGameOver = false;
+            currentScoreDiv.innerText = `Score: ${score}`;
+            resetGoldenBall();
+        }
+
+        function drawBall(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, BALL_SIZE, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawPlatform() {
+            ctx.drawImage(platformImg, platformX, platformY, PLATFORM_WIDTH, PLATFORM_HEIGHT);
+        }
+
+        function drawGameOver() {
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '75px Arial';
+            ctx.fillText('GAME OVER', canvas.width / 2 - 200, canvas.height / 2);
+        }
+
+        function drawWinScreen() {
+            ctx.drawImage(gameOverImg, canvas.width / 2 - gameOverImg.width / 2, canvas.height / 2 - gameOverImg.height / 2);
+        }
+
+        function updateScoreboard() {
+            scoreboardDiv.innerHTML = '<h2>Scoreboard</h2><ol>' + scoreboard.map(entry => `<li>${entry.name}: ${entry.score}</li>`).join('') + '</ol>';
+        }
+
+        function clearScoreboard() {
+            localStorage.removeItem('scoreboard');
+            scoreboard.length = 0;
+            updateScoreboard();
+        }
+
+        start.addEventListener('click', () => {
+            Music.pause();
+            StartButton.style.display = 'none';
+            QRCodeSeite1.style.display = 'flex';
+            startScreen.style.display = 'none';
+        })
+
+        function update() {
+            if (isGameOver) 
+                return;
+
+             
+
+            ballY += ballSpeedY;
+            ballX += ballSpeedX;
+            goldenBallX += goldenBallSpeedX;
+            goldenBallY += goldenBallSpeedY;
+
+            secondBalls.forEach((ball, index) => {
+                ball.y += ball.speedY;
+                ball.x += ball.speedX;
+
+                if (ball.x <= 0 || ball.x >= canvas.width - BALL_SIZE) {
+                    ball.speedX = -ball.speedX;
+                }
+
+                if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
+                    score -= 10; // Deduct 10 points
+                    currentScoreDiv.innerText = `Score: ${score}`;
+                    secondBalls.splice(index, 1);
+
+                    if (score < 0) {
+                        isGameOver = true;
+                        drawGameOver();
+                        scoreboard.push({ name: playerName, score });
+                        scoreboard.sort((a, b) => b.score - a.score);
+                        if (scoreboard.length > 20) {
+                            scoreboard.pop();
+                        }
+                        ws.send(`Playername:${playerName}`);
+                        ws.send(`Score:${score}`);
+                        localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+                        updateScoreboard();
+                        return;
+                    }
+                } else if (ball.y > canvas.height) {
+                    secondBalls.splice(index, 1);
+                }
+            });
+
+            if (goldenBallActive) {
+                if (goldenBallY + BALL_SIZE >= platformY && goldenBallX >= platformX && goldenBallX <= platformX + PLATFORM_WIDTH) {
+                    score += GOLDEN_BALL_SCORE;
+                    currentScoreDiv.innerText = `Score: ${score}`;
+                    goldenBallActive = false;
+
+                    if (score >= WINNING_SCORE) {
+                        isGameOver = true;
+                        drawWinScreen();
+                        scoreboard.push({ name: playerName, score });
+                        scoreboard.sort((a, b) => b.score - a.score);
+                        if (scoreboard.length > 20) {
+                            scoreboard.pop();
+                        }
+                        ws.send(`Playername:${playerName}`);
+                        ws.send(`Score:${score}`);
+                        localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+                        updateScoreboard();
+                        return;
+                    }
+                }else if (goldenBallY > canvas.height) {
+                    goldenBallActive = false;
+                }
+            }
+
+            if (!playerControlled) {
+                imgX += imgSpeed;
+                if (imgX <= 0 || imgX >= canvas.width - BALL_SIZE * 2) {
+                    imgSpeed = -imgSpeed;
+                }
+            }
+
+
+            if (goldenBallX <= 0 || goldenBallX >= canvas.width - BALL_SIZE) {
+                goldenBallSpeedX = -goldenBallSpeedX;
+            }
+            if (ballX <= 0 || ballX >= canvas.width - BALL_SIZE) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
+                score++;
+                ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
+                imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
+                resetBall();
+                currentScoreDiv.innerText = `Score: ${score}`;
+                secondBallCounter++;
+                if (secondBallCounter % 3 === 0) { // Reduced interval to make them appear more often
+                    resetSecondBalls();
+                }
+
+                // Increase speed at specific score thresholds
+                if (score === 25 || score === 50 || score === 100) {
+                    ballSpeed = Math.min(maxBallSpeed, ballSpeed * 1.5);
+                    if (!teleport) {
+                        imgSpeed = Math.min(maxImgSpeed, imgSpeed * 1.5);
+                    } else {
+                        clearInterval(teleportInterval);
+                        let newInterval = 4000 / (Math.pow(1.5, Math.floor(score / 25)));
+                        teleportInterval = setInterval(() => {
+                            imgX = Math.random() * (canvas.width - BALL_SIZE * 2);
+                        }, newInterval);
+                    }
+                }
+
+                if (score >= WINNING_SCORE) {
+                    isGameOver = true;
+                    drawWinScreen();
+                    ws.send("clear");
+                    scoreboard.push({ name: playerName, score });
+                    scoreboard.sort((a, b) => b.score - a.score);
+                    if (scoreboard.length > 20) {
+                        scoreboard.pop();
+                    }
+                    ws.send(`Playername:${playerName}`);
+                    ws.send(`Score:${score}`);
+                    localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+                    updateScoreboard();
+                    return;
+                }
+            } else if (ballY > canvas.height) {
+                console.log("Ball fell out of bounds");
+                isGameOver = true;
+                drawGameOver();
+                scoreboard.push({ name: playerName, score });
+                scoreboard.sort((a, b) => b.score - a.score);
+                if (scoreboard.length > 20) {
+                    scoreboard.pop();
+                }
+                ws.send(`Playername:${playerName}`);
+                ws.send(`Score:${score}`);
+                localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+                updateScoreboard();
+                return;
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background image if set
+            if (currentBgImg) {
+                ctx.drawImage(currentBgImg, 0, 0, canvas.width, canvas.height);
+            } else if (bgColor) {
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+                drawBall(ballX, ballY, ballColor);
+                secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
+            if (goldenBallActive) {
+                drawBall(goldenBallX, goldenBallY, goldenBallColor);
+            }
+            drawPlatform();
+            ctx.drawImage(img, imgX, 0, BALL_SIZE * 5, BALL_SIZE * 5);
+            if (isGameOver) {
+                if (score >= WINNING_SCORE) {
+                    drawWinScreen();
+                } else {
+                    drawGameOver();
+                }
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        	
+
+            // Dynamically set button dimensions based on image sizes
+            const images = ['B10.png', 'B11.png', 'B12.png'];
+            images.forEach((src, index) => {
+            const img = new Image();
+            img.src = src;
+});
+
+function startGame() {
+resetGame()
+gameLoop()
+}
+
+function playMusic() {
+   if (!musicStarted) {
+    Music.play();
+    musicStarted = true;
+   }
+
+}
+
+        //nameInput.addEventListener('keydown', (e) => {
+          //  if (e.key === 'Enter') {
+            //    playerName = nameInput.value.trim();
+              //  if (playerName.toLowerCase() === 'clear') {
+                //    clearScoreboard();
+                  //  nameInput.value = '';
+               // } else {
+                //    nameInput.style.display = 'none';
+               //     resetGame();
+               //     gameLoop();
+               // }
+           // }
+       // });
+
+        /*document.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                location.reload();
+            }
+//2Spielersteuerung
+            if (playerControlled) {
+                if (e.key === 'a' || e.key === 'A') {
+                    imgX = Math.max(0, imgX - 10);
+                } else if (e.key === 'd' || e.key === 'D') {
+                    imgX = Math.min(canvas.width - BALL_SIZE * 5, imgX + 10);
+                }
+            }
+        });*/
+
+        updateScoreboard();
+
+        // New Functionality for WebSocket and S1 variable
+        let S1 = 1;
+        let ws;
+
+        function initializeWebSocket() {
+            ws = new WebSocket('wss://ballcatch.glitch.me'); // Replace with your WebSocket server URL
+
+            ws.onopen = function() {
+                console.log('WebSocket connection established');
+                incrementScoreViaWebSocket();
+            };
+
+            ws.onmessage = function(event) {
+                console.log('Message from server:', event.data);
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket connection closed');
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+
+            function decodeBuffer(data) {
+    return String.fromCharCode.apply(null, new Uint8Array(data));
+}
+
+// WebSocket-Nachrichten verarbeiten
+ws.onmessage = function(event) {
+    if (event.data instanceof Blob) {
+        event.data.arrayBuffer().then(buffer => {
+            const message = decodeBuffer(buffer);
+            processWebSocketMessage(message);
+        });
+    } else if (event.data instanceof ArrayBuffer) {
+        const message = decodeBuffer(event.data);
+        processWebSocketMessage(message);
+    } else if (typeof event.data === 'string') {
+        let message = event.data;
+
+        try {
+            // Versuche, den String als JSON zu parsen, falls er als Buffer gesendet wurde
+            let parsedData = JSON.parse(event.data);
+            if (parsedData.type === 'Buffer' && Array.isArray(parsedData.data)) {
+                message = decodeBuffer(parsedData.data);
+            }
+        } catch (error) {
+            // Falls das Parsen fehlschlägt, verwenden wir den ursprünglichen String
+            message = event.data;
+        }
+
+        processWebSocketMessage(message);
+    }
+};
+
+function processWebSocketMessage(message) {
+    console.log('Message from server:', message);
+    if (message.startsWith('name:')) {
+        playerName = message.substring(5).trim(); // Entferne "name:" und trimme Leerzeichen
+        console.log(playerName);
+        startGame();
+        // Hier kannst du den Namen weiterverarbeiten oder in einer Variablen speichern
+        // Zum Beispiel:
+        // playerName = playerName;
+
+    } else {
+
+
+    switch (message) {
+
+        case 'right':
+            platformX = Math.min(canvas.width - PLATFORM_WIDTH, platformX + 50);
+            break;
+        case 'left':
+            platformX = Math.max(0, platformX - 50);
+            break;
+        case 'P2right':
+            if (playerControlled) {
+                imgX = Math.min(canvas.width - BALL_SIZE * 5, imgX + 50);
+            }
+            break;
+        case 'P2left':
+            if (playerControlled) {
+                imgX = Math.max(0, imgX - 50);
+            }
+            break;
+        case 'P2S':
+            drawBall(ballX, ballY, ballColor);
+            secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
+            B=1;
+            break;
+        case 'Option1':
+            startScreen.style.display = 'none'; // StartBild.png entfernen
+            currentImgSrc = 'B1.png';
+            img.src = currentImgSrc;
+            currentBgImg = bgImg1; // Hintergrundbild für Option 1 setzen
+            bgColor = '#ADD8E6'; // Hintergrundfarbe für Option 1 setzen
+            teleport = false;
+            playerControlled = false;
+            startScreen.style.display = 'none';
+            QRCodeSeite1.style.display = 'none';
+            break;
+        case 'Option2':
+            startScreen.style.display = 'none'; // StartBild.png entfernen
+            currentImgSrc = 'B4.png';
+            img.src = currentImgSrc;
+            currentBgImg = bgImg2; // Hintergrundbild für Option 2 setzen
+            bgColor = '#000000'; // Hintergrundfarbe für Option 2 setzen
+            teleport = true;
+            playerControlled = false;
+            clearInterval(teleportInterval);
+            teleportInterval = setInterval(() => {
+                imgX = Math.random() * (canvas.width - BALL_SIZE * 2);
+            }, 2000); // Teleport alle 2 Sekunden
+            startScreen.style.display = 'none';
+            QRCodeSeite1.style.display = 'none';
+            break;
+        case 'Option3':
+            startScreen.style.display = 'none'; // StartBild.png entfernen
+            warteScreen.style.display = 'none'; 
+            QRCodeSeite2.style.display = 'flex';
+            QRCodeSeite1.style.display = 'none';
+            break;
+        case '2Player':
+            warteScreen.style.display = 'flex';
+            QRCodeSeite2.style.display = 'none';
+            break;
+        case 'clear':
+            clearScoreboard();
+            break;
+        case 'Bereit':
+            I++
+            if (I == 2) {
+                warteScreen.style.display = 'none';
+                currentImgSrc = 'B1.png';
+                img.src = currentImgSrc;
+                currentBgImg = bgImg1; // Hintergrundbild für Option 3 setzen
+                bgColor = '#ADD8E6'; // Hintergrundfarbe für Option 3 setzen
+                teleport = false;
+                playerControlled = true;
+                startScreen.style.display = 'none';
+                startGame();
+                Music.play();
+            }
+            break;
+    }
+    }
+}};
+
+        function incrementScoreViaWebSocket() {
+            const intervalId = setInterval(() => {
+                if (S1 <= score && S2 == 1) {
+                    ws.send('increment');
+                    S1++;
+                }
+            }, 10);
+        }
+
+        // Initialize WebSocket connection when the script loads
+        initializeWebSocket();
+    </script>
+</body>
+</html>
