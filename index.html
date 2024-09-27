@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
             display: block;
             margin: 0 auto;
         }
+
         body {
             display: flex;
             justify-content: center;
@@ -21,6 +23,7 @@
             text-align: center;
             position: relative;
         }
+
         #nameInput {
             position: absolute;
             top: 50%;
@@ -32,30 +35,36 @@
             background-color: #333;
             color: #fff;
             outline: none;
-            display: none; /* Initially hidden */
+            display: none;
+            /* Initially hidden */
         }
+
         #nameInput::placeholder {
             color: #bbb;
         }
+
         #scoreboard {
             position: absolute;
             top: 10px;
             left: 10px;
             text-align: left;
         }
+
         #currentScore {
             position: absolute;
             top: 10px;
             right: 10px;
             font-size: 20px;
         }
+
         #Nameeingabe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('B9.png') no-repeat center center fixed; /* Menu background image */
+            background: url('B9.png') no-repeat center center fixed;
+            /* Menu background image */
             background-size: cover;
             display: none;
             flex-direction: column;
@@ -65,20 +74,21 @@
         }
     </style>
 </head>
+
 <body>
-    <div id="startScreen" style="display: flex; position: absolute";>
+    <div id="startScreen" style="display: flex; position: absolute" ;>
         <img src="StartBild.png" alt="Start Screen">
     </div>
-    <div id="StartButton" style="display: flex; position: absolute; width: 100px; height: 50px";>
+    <div id="StartButton" style="display: flex; position: absolute; width: 100px; height: 50px" ;>
         <button id="start">Start</button>
     </div>
-    <div id="warteScreen" style="display: none; position: absolute";>
+    <div id="warteScreen" style="display: none; position: absolute" ;>
         <img src="B13.png" alt="Waiting Screen">
     </div>
-    <div id="QRCodeSeite1" style="display: none; position: absolute";>
+    <div id="QRCodeSeite1" style="display: none; position: absolute" ;>
         <img src="QRP1.png" alt="QR Code">
     </div>
-    <div id="QRCodeSeite2" style="display: none; position: absolute";>
+    <div id="QRCodeSeite2" style="display: none; position: absolute" ;>
         <img src="QRP2.png" alt="QR Code2">
     </div>
     <canvas id="gameCanvas" width="1280" height="700"></canvas>
@@ -106,7 +116,7 @@
         let ballSpeed = 5;
         let ballX, ballY, ballSpeedY, ballSpeedX;
         let secondBalls = [];
-        let goldenBallX, goldenBallY, goldenBallSpeedY, goldenBallActive = false;
+        let goldenBallX, goldenBallY, goldenBallSpeedX, goldenBallSpeedY, goldenBallActive = false;
         let platformX, platformY;
         let isGameOver = false;
         let score = 0;
@@ -117,10 +127,10 @@
         let bgColor = '#000000';
         let imgX = 2;
         let imgSpeed = 3;
-        let imgSpeedMultiplier = 0.7; // Reduced multiplier
+        let imgSpeedMultiplier = 1.1; // Reduced multiplier
         let secondBallCounter = 0;
         let originalImgSpeed = imgSpeed;
-        let maxBallSpeed = 10;
+        let maxBallSpeed = 20;
         let maxImgSpeed = 8;
         let teleport = false; // Variable to manage teleportation
         let teleportInterval;
@@ -155,6 +165,13 @@
             ballSpeedX = (Math.random() + 1.2) * 2;
         }
 
+        function checkScore() {
+            if (score % 3 && score > 0) {
+                imgSpeed = imgSpeed+imgSpeedMultiplier;
+            }
+        }
+
+
         function resetSecondBalls() {
             for (let i = 0; i < 2; i++) {
                 secondBalls.push({
@@ -168,8 +185,9 @@
 
         function resetGoldenBall() {
             goldenBallX = imgX;
-            goldenBallY = 0;
+            goldenBallY = -30;
             goldenBallSpeedY = ballSpeed * 0.3;
+            goldenBallSpeedX = Math.max((Math.random() + 1.0) * 2, 1.5);
             goldenBallActive = true;
         }
 
@@ -189,7 +207,7 @@
             resetPlatform();
             isGameOver = false;
             currentScoreDiv.innerText = `Score: ${score}`;
-            setInterval(resetGoldenBall, GOLDEN_BALL_INTERVAL);
+            resetGoldenBall();
         }
 
         function drawBall(x, y, color) {
@@ -231,13 +249,15 @@
         })
 
         function update() {
-            if (isGameOver) 
+            if (isGameOver)
                 return;
 
-             
+
 
             ballY += ballSpeedY;
             ballX += ballSpeedX;
+            goldenBallX += goldenBallSpeedX;
+            goldenBallY += goldenBallSpeedY;
 
             secondBalls.forEach((ball, index) => {
                 ball.y += ball.speedY;
@@ -248,7 +268,8 @@
                 }
 
                 if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
-                    score -= 10; // Deduct 10 points
+                    score -= 10; // Deduct 10 points    
+                    checkScore();
                     currentScoreDiv.innerText = `Score: ${score}`;
                     secondBalls.splice(index, 1);
 
@@ -272,47 +293,39 @@
             });
 
             if (goldenBallActive) {
-                goldenBallY += goldenBallSpeedY;
                 if (goldenBallY + BALL_SIZE >= platformY && goldenBallX >= platformX && goldenBallX <= platformX + PLATFORM_WIDTH) {
                     score += GOLDEN_BALL_SCORE;
+                    checkScore();
                     currentScoreDiv.innerText = `Score: ${score}`;
                     goldenBallActive = false;
-
-                    if (score >= WINNING_SCORE) {
-                        isGameOver = true;
-                        drawWinScreen();
-                        scoreboard.push({ name: playerName, score });
-                        scoreboard.sort((a, b) => b.score - a.score);
-                        if (scoreboard.length > 20) {
-                            scoreboard.pop();
-                        }
-                        ws.send(`Playername:${playerName}`);
-                        ws.send(`Score:${score}`);
-                        localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-                        updateScoreboard();
-                        return;
-                    }
+                    setTimeout(resetGoldenBall, 5000);
                 } else if (goldenBallY > canvas.height) {
-                    goldenBallActive = false;
+                    setTimeout(resetGoldenBall, 5000);
                 }
             }
 
             if (!playerControlled) {
                 imgX += imgSpeed;
                 if (imgX <= 0 || imgX >= canvas.width - BALL_SIZE * 2) {
+
+                    //imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
                     imgSpeed = -imgSpeed;
                 }
             }
 
+
+            if (goldenBallX <= 0 || goldenBallX >= canvas.width - BALL_SIZE) {
+                goldenBallSpeedX = -goldenBallSpeedX;
+            }
             if (ballX <= 0 || ballX >= canvas.width - BALL_SIZE) {
                 ballSpeedX = -ballSpeedX;
             }
 
             if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
                 score++;
-                B=0;
+                checkScore();
                 ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
-                imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
+                //imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
                 resetBall();
                 currentScoreDiv.innerText = `Score: ${score}`;
                 secondBallCounter++;
@@ -320,7 +333,8 @@
                     resetSecondBalls();
                 }
 
-                // Increase speed at specific score thresholds
+
+
                 if (score === 25 || score === 50 || score === 100) {
                     ballSpeed = Math.min(maxBallSpeed, ballSpeed * 1.5);
                     if (!teleport) {
@@ -368,7 +382,7 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
             // Draw background image if set
             if (currentBgImg) {
                 ctx.drawImage(currentBgImg, 0, 0, canvas.width, canvas.height);
@@ -376,9 +390,9 @@
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
-            
-                drawBall(ballX, ballY, ballColor);
-                secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
+
+            drawBall(ballX, ballY, ballColor);
+            secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
             if (goldenBallActive) {
                 drawBall(goldenBallX, goldenBallY, goldenBallColor);
             }
@@ -397,44 +411,45 @@
             update();
             draw();
             requestAnimationFrame(gameLoop);
+            //Shipspeed();
         }
-        	
 
-            // Dynamically set button dimensions based on image sizes
-            const images = ['B10.png', 'B11.png', 'B12.png'];
-            images.forEach((src, index) => {
+
+        // Dynamically set button dimensions based on image sizes
+        const images = ['B10.png', 'B11.png', 'B12.png'];
+        images.forEach((src, index) => {
             const img = new Image();
             img.src = src;
-});
+        });
 
-function startGame() {
-resetGame()
-gameLoop()
-}
+        function startGame() {
+            resetGame()
+            gameLoop()
+        }
 
-function playMusic() {
-   if (!musicStarted) {
-    Music.play();
-    musicStarted = true;
-   }
+        function playMusic() {
+            if (!musicStarted) {
+                Music.play();
+                musicStarted = true;
+            }
 
-}
+        }
 
         //nameInput.addEventListener('keydown', (e) => {
-          //  if (e.key === 'Enter') {
-            //    playerName = nameInput.value.trim();
-              //  if (playerName.toLowerCase() === 'clear') {
-                //    clearScoreboard();
-                  //  nameInput.value = '';
-               // } else {
-                //    nameInput.style.display = 'none';
-               //     resetGame();
-               //     gameLoop();
-               // }
-           // }
-       // });
+        //  if (e.key === 'Enter') {
+        //    playerName = nameInput.value.trim();
+        //  if (playerName.toLowerCase() === 'clear') {
+        //    clearScoreboard();
+        //  nameInput.value = '';
+        // } else {
+        //    nameInput.style.display = 'none';
+        //     resetGame();
+        //     gameLoop();
+        // }
+        // }
+        // });
 
-        document.addEventListener('keydown', (e) => {
+        /*document.addEventListener('keydown', (e) => {
             if (e.key === ' ' || e.key === 'Spacebar') {
                 location.reload();
             }
@@ -446,7 +461,7 @@ function playMusic() {
                     imgX = Math.min(canvas.width - BALL_SIZE * 5, imgX + 10);
                 }
             }
-        });
+        });*/
 
         updateScoreboard();
 
@@ -457,148 +472,158 @@ function playMusic() {
         function initializeWebSocket() {
             ws = new WebSocket('wss://ballcatch.glitch.me'); // Replace with your WebSocket server URL
 
-            ws.onopen = function() {
+            ws.onopen = function () {
                 console.log('WebSocket connection established');
                 incrementScoreViaWebSocket();
             };
 
-            ws.onmessage = function(event) {
+            ws.onmessage = function (event) {
                 console.log('Message from server:', event.data);
             };
 
-            ws.onclose = function() {
+            ws.onclose = function () {
                 console.log('WebSocket connection closed');
             };
 
-            ws.onerror = function(error) {
+            ws.onerror = function (error) {
                 console.error('WebSocket error:', error);
             };
 
             function decodeBuffer(data) {
-    return String.fromCharCode.apply(null, new Uint8Array(data));
-}
-
-// WebSocket-Nachrichten verarbeiten
-ws.onmessage = function(event) {
-    if (event.data instanceof Blob) {
-        event.data.arrayBuffer().then(buffer => {
-            const message = decodeBuffer(buffer);
-            processWebSocketMessage(message);
-        });
-    } else if (event.data instanceof ArrayBuffer) {
-        const message = decodeBuffer(event.data);
-        processWebSocketMessage(message);
-    } else if (typeof event.data === 'string') {
-        let message = event.data;
-
-        try {
-            // Versuche, den String als JSON zu parsen, falls er als Buffer gesendet wurde
-            let parsedData = JSON.parse(event.data);
-            if (parsedData.type === 'Buffer' && Array.isArray(parsedData.data)) {
-                message = decodeBuffer(parsedData.data);
+                return String.fromCharCode.apply(null, new Uint8Array(data));
             }
-        } catch (error) {
-            // Falls das Parsen fehlschlägt, verwenden wir den ursprünglichen String
-            message = event.data;
-        }
 
-        processWebSocketMessage(message);
-    }
-};
+            // WebSocket-Nachrichten verarbeiten
+            ws.onmessage = function (event) {
+                if (event.data instanceof Blob) {
+                    event.data.arrayBuffer().then(buffer => {
+                        const message = decodeBuffer(buffer);
+                        processWebSocketMessage(message);
+                    });
+                } else if (event.data instanceof ArrayBuffer) {
+                    const message = decodeBuffer(event.data);
+                    processWebSocketMessage(message);
+                } else if (typeof event.data === 'string') {
+                    let message = event.data;
 
-function processWebSocketMessage(message) {
-    console.log('Message from server:', message);
-    if (message.startsWith('name:')) {
-        playerName = message.substring(5).trim(); // Entferne "name:" und trimme Leerzeichen
-        console.log(playerName);
-        startGame();
-        // Hier kannst du den Namen weiterverarbeiten oder in einer Variablen speichern
-        // Zum Beispiel:
-        // playerName = playerName;
+                    try {
+                        // Versuche, den String als JSON zu parsen, falls er als Buffer gesendet wurde
+                        let parsedData = JSON.parse(event.data);
+                        if (parsedData.type === 'Buffer' && Array.isArray(parsedData.data)) {
+                            message = decodeBuffer(parsedData.data);
+                        }
+                    } catch (error) {
+                        // Falls das Parsen fehlschlägt, verwenden wir den ursprünglichen String
+                        message = event.data;
+                    }
 
-    } else {
+                    processWebSocketMessage(message);
+                }
+            };
+
+            function processWebSocketMessage(message) {
+                console.log('Message from server:', message);
+                if (message.startsWith('name:')) {
+                    playerName = message.substring(5).trim(); // Entferne "name:" und trimme Leerzeichen
+                    console.log(playerName);
+                    startGame();
+                    // Hier kannst du den Namen weiterverarbeiten oder in einer Variablen speichern
+                    // Zum Beispiel:
+                    // playerName = playerName;
+
+                } else {
 
 
-    switch (message) {
+                    switch (message) {
 
-        case 'right':
-            platformX = Math.min(canvas.width - PLATFORM_WIDTH, platformX + 50);
-            break;
-        case 'left':
-            platformX = Math.max(0, platformX - 50);
-            break;
-        //case 'P2right':
-            //if (playerControlled) {
-                //imgX = Math.min(canvas.width - BALL_SIZE * 5, imgX + 50);
-            //}
-            //break;
-        case 'P2left':
-            if (playerControlled) {
-                imgX = Math.max(0, imgX - 50);
+                        case 'right':
+                            platformX = Math.min(canvas.width - PLATFORM_WIDTH, platformX + 50);
+                            break;
+                        case 'left':
+                            platformX = Math.max(0, platformX - 50);
+                            break;
+                        case 'P2right':
+                            if (playerControlled) {
+                                imgX = Math.min(canvas.width - BALL_SIZE * 5, imgX + 50);
+                            }
+                            break;
+                        case 'P2left':
+                            if (playerControlled) {
+                                imgX = Math.max(0, imgX - 50);
+                            }
+                            break;
+                        case 'P2S':
+                            drawBall(ballX, ballY, ballColor);
+                            secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
+                            B = 1;
+                            break;
+                        case 'Option1':
+                            startScreen.style.display = 'none'; // StartBild.png entfernen
+                            currentImgSrc = 'B1.png';
+                            img.src = currentImgSrc;
+                            currentBgImg = bgImg1; // Hintergrundbild für Option 1 setzen
+                            bgColor = '#ADD8E6'; // Hintergrundfarbe für Option 1 setzen
+                            teleport = false;
+                            playerControlled = false;
+                            startScreen.style.display = 'none';
+                            QRCodeSeite1.style.display = 'none';
+                            break;
+                        case 'Option2':
+                            startScreen.style.display = 'none'; // StartBild.png entfernen
+                            currentImgSrc = 'B4.png';
+                            img.src = currentImgSrc;
+                            currentBgImg = bgImg2; // Hintergrundbild für Option 2 setzen
+                            bgColor = '#000000'; // Hintergrundfarbe für Option 2 setzen
+                            teleport = true;
+                            playerControlled = false;
+                            clearInterval(teleportInterval);
+                            teleportInterval = setInterval(() => {
+                                imgX = Math.random() * (canvas.width - BALL_SIZE * 2);
+                            }, 2000); // Teleport alle 2 Sekunden
+                            startScreen.style.display = 'none';
+                            QRCodeSeite1.style.display = 'none';
+                            break;
+                        case 'Option3':
+                            startScreen.style.display = 'none'; // StartBild.png entfernen
+                            warteScreen.style.display = 'none';
+                            QRCodeSeite2.style.display = 'flex';
+                            QRCodeSeite1.style.display = 'none';
+                            break;
+                        case '2Player':
+                            warteScreen.style.display = 'flex';
+                            QRCodeSeite2.style.display = 'none';
+                            break;
+                        case 'clear':
+                            clearScoreboard();
+                            break;
+                        case 'Bereit':
+                            I++
+                            if (I == 2) {
+                                warteScreen.style.display = 'none';
+                                currentImgSrc = 'B1.png';
+                                img.src = currentImgSrc;
+                                currentBgImg = bgImg1; // Hintergrundbild für Option 3 setzen
+                                bgColor = '#ADD8E6'; // Hintergrundfarbe für Option 3 setzen
+                                teleport = false;
+                                playerControlled = true;
+                                startScreen.style.display = 'none';
+                                startGame();
+                                Music.play();
+                            }
+                            break;
+                    }
+                }
             }
-            break;
-        case 'P2S':
-            drawBall(ballX, ballY, ballColor);
-            secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
-            B=1;
-            break;
-        case 'Option1':
-            startScreen.style.display = 'none'; // StartBild.png entfernen
-            currentImgSrc = 'B1.png';
-            img.src = currentImgSrc;
-            currentBgImg = bgImg1; // Hintergrundbild für Option 1 setzen
-            bgColor = '#ADD8E6'; // Hintergrundfarbe für Option 1 setzen
-            teleport = false;
-            playerControlled = false;
-            startScreen.style.display = 'none';
-            QRCodeSeite1.style.display = 'none';
-            break;
-        case 'Option2':
-            startScreen.style.display = 'none'; // StartBild.png entfernen
-            currentImgSrc = 'B4.png';
-            img.src = currentImgSrc;
-            currentBgImg = bgImg2; // Hintergrundbild für Option 2 setzen
-            bgColor = '#000000'; // Hintergrundfarbe für Option 2 setzen
-            teleport = true;
-            playerControlled = false;
-            clearInterval(teleportInterval);
-            teleportInterval = setInterval(() => {
-                imgX = Math.random() * (canvas.width - BALL_SIZE * 2);
-            }, 2000); // Teleport alle 2 Sekunden
-            startScreen.style.display = 'none';
-            QRCodeSeite1.style.display = 'none';
-            break;
-        case 'Option3':
-            startScreen.style.display = 'none'; // StartBild.png entfernen
-            warteScreen.style.display = 'none'; 
-            QRCodeSeite2.style.display = 'flex';
-            QRCodeSeite1.style.display = 'none';
-            break;
-        case '2Player':
-            warteScreen.style.display = 'flex';
-            QRCodeSeite2.style.display = 'none';
-            break;
-        case 'clear':
-            clearScoreboard();
-            break;
-        case 'Bereit':
-            I++
-            if (I == 2) {
-                warteScreen.style.display = 'none';
-                currentImgSrc = 'B1.png';
-                img.src = currentImgSrc;
-                currentBgImg = bgImg1; // Hintergrundbild für Option 3 setzen
-                bgColor = '#ADD8E6'; // Hintergrundfarbe für Option 3 setzen
-                teleport = false;
-                playerControlled = true;
-                startScreen.style.display = 'none';
-                startGame();
-                Music.play();
-            }
-            break;
-    }
-    }
-}};
+        };
+
+        //   function Shipspeed() {
+        //     const intervalId2 = setInterval(() => {
+        //       imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
+
+        // }, 2000);
+
+
+        // }
 
         function incrementScoreViaWebSocket() {
             const intervalId = setInterval(() => {
@@ -613,4 +638,5 @@ function processWebSocketMessage(message) {
         initializeWebSocket();
     </script>
 </body>
+
 </html>
