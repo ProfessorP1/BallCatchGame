@@ -134,7 +134,10 @@
         const ws = new WebSocket('wss://ballcatch.glitch.me');
         ws.onopen = () => {
             console.log('WebSocket connection established');
-            ws.send('controller');
+            ws.send(JSON.stringify({
+            type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+            content: 'controller' // Der tatsächliche Inhalt (das Wort)
+}));
         };
 
         ws.onerror = (error) => {
@@ -149,7 +152,10 @@
         const controlSection = document.getElementById('controlSection');
 
         bereit.addEventListener('click', () => {
-            ws.send('Bereit');
+            ws.send(JSON.stringify({
+            type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+            content: 'Bereit' // Der tatsächliche Inhalt (das Wort)
+}));
             bereitKnopf.style.display = 'none';
             controlSection.style.display = 'flex';
         })
@@ -158,8 +164,14 @@
             const name = document.getElementById('nameInput').value.trim();
             playMusic();
             if (name) {
-                ws.send("Test");
-                ws.send(`name:${name}`);
+                ws.send(JSON.stringify({
+                type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                content: 'Test' // Der tatsächliche Inhalt (das Wort)
+}));;
+                ws.send(JSON.stringify({
+                type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                content: name:${name} // Der tatsächliche Inhalt (das Wort)
+}));
                 console.log(`Sending name: ${name}`);
                 nameInputSection.style.display = 'none';
                 controlSection.style.display = 'flex';
@@ -180,9 +192,15 @@
                     Haptic();
 
                 }
-                ws.send(message);
+                ws.send(JSON.stringify({
+                type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                content: message // Der tatsächliche Inhalt (das Wort)
+}));
                 intervalId = setInterval(() => {
-                    ws.send(message);
+                    ws.send(JSON.stringify({
+                    type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                    content: message // Der tatsächliche Inhalt (das Wort)
+}));
                 }, 100);
             });
 
@@ -197,9 +215,15 @@
             button.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 console.log(`Sending ${message} command`);
-                ws.send(message);
+                ws.send(JSON.stringify({
+                type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                content: message // Der tatsächliche Inhalt (das Wort)
+}));
                 intervalId = setInterval(() => {
-                    ws.send(message);
+                    ws.send(JSON.stringify({
+                    type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                    content: message // Der tatsächliche Inhalt (das Wort)
+}));
                 }, 100);
             });
 
@@ -220,18 +244,27 @@
         const option3Button = document.getElementById('option3');
 
         option1Button.addEventListener('click', () => {
-            ws.send('Option1');
+                ws.send(JSON.stringify({
+                type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                content: 'Option1' // Der tatsächliche Inhalt (das Wort)
+}));
             menuScreen.style.display = 'none';
             Haptic();
         });
 
         option2Button.addEventListener('click', () => {
-            ws.send('Option2');
+                ws.send(JSON.stringify({
+                type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                content: 'Option2' // Der tatsächliche Inhalt (das Wort)
+}));
             menuScreen.style.display = 'none';
         });
         
         option3Button.addEventListener('click', () => {
-            ws.send('Option3');
+                ws.send(JSON.stringify({
+                type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                content: 'Option3' // Der tatsächliche Inhalt (das Wort)
+}));
             menuScreen.style.display = 'none';
             nameInputSection.style.display = 'none';
             controlSection.style.display = 'none';
