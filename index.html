@@ -281,8 +281,11 @@
                         if (scoreboard.length > 20) {
                             scoreboard.pop();
                         }
-                        ws.send(`Playername:${playerName}`);
-                        ws.send(`Score:${score}`);
+                       ws.send(JSON.stringify({
+                        type: 'score',    // Typ der Nachricht
+                        name: playerName, // Name des Spielers
+                        score: playerScore // Score des Spielers
+}));
                         localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                         updateScoreboard();
                         return;
@@ -357,8 +360,11 @@
                     if (scoreboard.length > 20) {
                         scoreboard.pop();
                     }
-                    ws.send(`Playername:${playerName}`);
-                    ws.send(`Score:${score}`);
+                    ws.send(JSON.stringify({
+                    type: 'score',    // Typ der Nachricht
+                    name: playerName, // Name des Spielers
+                    score: playerScore // Score des Spielers
+}));
                     localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                     updateScoreboard();
                     return;
@@ -372,8 +378,11 @@
                 if (scoreboard.length > 20) {
                     scoreboard.pop();
                 }
-                ws.send(`Playername:${playerName}`);
-                ws.send(`Score:${score}`);
+                ws.send(JSON.stringify({
+                type: 'score',    // Typ der Nachricht
+                name: playerName, // Name des Spielers
+                score: playerScore // Score des Spielers
+}));
                 localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                 updateScoreboard();
                 return;
