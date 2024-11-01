@@ -170,7 +170,7 @@
 }));;
                 ws.send(JSON.stringify({
                 type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
-                content: ´name: ${name}´ // Der tatsächliche Inhalt (das Wort)
+                content: `name: ${name}` // Der tatsächliche Inhalt (das Wort)
 }));
                 console.log(`Sending name: ${name}`);
                 nameInputSection.style.display = 'none';
