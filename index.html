@@ -532,10 +532,15 @@
 
             function processWebSocketMessage(message) {
                 console.log('Message from server:', message);
-                if (message.startsWith('name:')) {
-                    playerName = message.substring(5).trim(); // Entferne "name:" und trimme Leerzeichen
-                    console.log(playerName);
-                    startGame();
+                if (data.type === 'word' && data.content.startsWith('name:')) {
+                // Extrahiere den Namen, indem "name:" abgeschnitten wird
+                const playerName = data.content.substring(5).trim(); // Entferne "name:" und trimme Leerzeichen
+                console.log('Player Name:', playerName);
+        
+                // Rufe die Funktion startGame auf
+                startGame();
+    }
+}
                     // Hier kannst du den Namen weiterverarbeiten oder in einer Variablen speichern
                     // Zum Beispiel:
                     // playerName = playerName;
