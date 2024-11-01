@@ -532,9 +532,7 @@
 
             function processWebSocketMessage(message) {
                 console.log('Message from server:', message);
-                try {
-                // Versuche, die Nachricht als JSON zu parsen
-                const data = JSON.parse(message);
+            
                 if (data.type === 'word' && data.content.startsWith('name:')) {
                 // Extrahiere den Namen, indem "name:" abgeschnitten wird
                 const playerName = data.content.substring(5).trim(); // Entferne "name:" und trimme Leerzeichen
@@ -542,7 +540,6 @@
         
                 // Rufe die Funktion startGame auf
                 startGame();
-                }
 
                     // Hier kannst du den Namen weiterverarbeiten oder in einer Variablen speichern
                     // Zum Beispiel:
