@@ -72,12 +72,22 @@
             align-items: center;
             z-index: 10;
         }
+
+        #StartButton {
+            position: absolute;
+            margin-top: 11.25%;
+            margin-right: 0%;
+            margin-left: 4%;
+            width: 100%;
+            height: 100%;
+
+        }
     </style>
 </head>
 
 <body>
     <div id="startScreen" style="display: flex; position: absolute" ;>
-        <img src="StartBild.png" alt="Start Screen">
+        <img src="Start.gif" alt="Start Screen">
     </div>
     <div id="StartButton" style="display: flex; position: absolute; width: 100px; height: 50px" ;>
         <button id="start">Start</button>
@@ -96,6 +106,10 @@
     <div id="scoreboard"></div>
     <div id="currentScore"></div>
     <audio id="musik1" src="sounds/M1.mp3" loop></audio>
+    <audio id="TM" src="Sounds/Titelmusik.mp3" loop></audio>
+    <audio id="GB" src="sounds/GB.mp3"></audio>
+    <audio id="RB" src="sounds/RB.mp3"></audio>
+    <audio id="WB" src="sounds/WB.mp3"></audio>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -113,6 +127,10 @@
         const GOLDEN_BALL_SCORE = 5;
         const WINNING_SCORE = 300;
         const Music = document.getElementById('musik1');
+        const RBS = document.getElementById('RB');
+        const GBS = document.getElementById('GB');
+        const WBS = document.getElementById('WB');
+        const Music2 = document.getElementById('TM');
         let ballSpeed = 5;
         let ballX, ballY, ballSpeedY, ballSpeedX;
         let secondBalls = [];
@@ -242,8 +260,14 @@
             updateScoreboard();
         }
 
+        function neustart(){
+            Ende();
+            location.reload();
+        }
+
         start.addEventListener('click', () => {
             Music.pause();
+            Music2.play();
             StartButton.style.display = 'none';
             QRCodeSeite1.style.display = 'flex';
             startScreen.style.display = 'none';
@@ -271,6 +295,7 @@
                 if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
                     score -= 10; // Deduct 10 points    
                     checkScore();
+                    RBS.play();
                     currentScoreDiv.innerText = `Score: ${score}`;
                     secondBalls.splice(index, 1);
 
@@ -287,7 +312,8 @@
                         type: 'score',    // Typ der Nachricht
                         name: playerName, // Name des Spielers
                         playerScore: score // Score des Spielers
-}));
+}));        
+                        setTimeout(neustart, 3000);
                         localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                         updateScoreboard();
                         return;
@@ -298,16 +324,17 @@
             });
 
             if (goldenBallActive) {
-                if (goldenBallY + BALL_SIZE >= platformY && goldenBallX >= platformX && goldenBallX <= platformX + PLATFORM_WIDTH) {
+                if (isBallTouchingPlatform(goldenBallX, goldenBallY, platformX, platformY)) {
                     score += GOLDEN_BALL_SCORE;
                     checkScore();
+                    GBS.play();
                     currentScoreDiv.innerText = `Score: ${score}`;
                     goldenBallActive = false;
                     setTimeout(resetGoldenBall, 5000);
                 } else if (goldenBallY > canvas.height) {
                     setTimeout(resetGoldenBall, 5000);
                 }
-            }
+        }
 
             if (!playerControlled) {
                 imgX += imgSpeed;
@@ -329,6 +356,7 @@
             if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
                 score++;
                 checkScore();
+                WBS.play();
                 ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
                 //imgSpeed = Math.min(maxImgSpeed, imgSpeed + imgSpeedMultiplier);
                 resetBall();
@@ -370,6 +398,7 @@
 }));
                     localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                     updateScoreboard();
+                    setTimeout(neustart, 3000);
                     return;
                 }
             } else if (ballY > canvas.height) {
@@ -389,6 +418,7 @@
 }));
                 localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
                 updateScoreboard();
+                setTimeout(neustart, 3000);
                 return;
             }
         }
@@ -447,6 +477,28 @@
                 musicStarted = true;
             }
 
+        }
+
+        function playMusic2() {
+            if (!musicStarted) {
+                Music2.play();
+                musicStarted = true;
+            }
+        }
+
+        function isBallTouchingPlatform(ballX, ballY, platformX, platformY) {
+            const ballBottom = ballY + BALL_SIZE;
+            const platformBottom = platformY + PLATFORM_HEIGHT;
+    
+            return (ballBottom >= platformY && ballY <= platformBottom &&
+                  ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH);
+        }
+
+        function Ende() {
+            ws.send(JSON.stringify({
+                type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                content: 'Ende' // Der tatsächliche Inhalt (das Wort)
+}));
         }
 
         //nameInput.addEventListener('keydown', (e) => {
@@ -563,6 +615,8 @@ function processWebSocketMessage(message) {
         playerName = message.content.substring(5).trim();
         console.log('Player Name:', playerName);
             startGame(); // Starte das Spiel
+            Music2.pause();
+            Music.play();
         } else {
             // Behandle andere Inhalte im Worttyp
             switch (data.content) {
