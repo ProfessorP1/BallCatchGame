@@ -453,6 +453,7 @@
         function gameLoop() {
             update();
             draw();
+            Moves();
             requestAnimationFrame(gameLoop);
             //Shipspeed();
         }
@@ -467,6 +468,7 @@
 
         function startGame() {
             QRCodeSeite1.style.display = 'none';
+            QRCodeSeite2.style.display = 'none';2
             resetGame()
             gameLoop()
         }
@@ -500,35 +502,37 @@
                 content: 'Ende' // Der tatsächliche Inhalt (das Wort)
 }));
         }
+        let moveLeft = false;
+        let moveRight = false;
 
-        //nameInput.addEventListener('keydown', (e) => {
-        //  if (e.key === 'Enter') {
-        //    playerName = nameInput.value.trim();
-        //  if (playerName.toLowerCase() === 'clear') {
-        //    clearScoreboard();
-        //  nameInput.value = '';
-        // } else {
-        //    nameInput.style.display = 'none';
-        //     resetGame();
-        //     gameLoop();
-        // }
-        // }
-        // });
-
-        /*document.addEventListener('keydown', (e) => {
-            if (e.key === ' ' || e.key === 'Spacebar') {
-                location.reload();
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'a' || e.key === 'A') {
+                moveLeft = true;
+            } else if (e.key === 'd' || e.key === 'D') {
+                moveRight = true;
             }
-*/
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'a' || e.key === 'A') {
+                moveLeft = false;
+            } else if (e.key === 'd' || e.key === 'D') {
+                moveRight = false;
+            }
+        });
+
+        function Moves() {
+            if (moveLeft) {
+                platformX = Math.max(0, platformX - 5);
+            }
+            if (moveRight) {
+                platformX = Math.min(canvas.width - PLATFORM_WIDTH, platformX + 5);
+            }
+        }
+
+            
+        
 //Spielersteuerungsbackup
-            if (Backup) {
-                if (e.key === 'a' || e.key === 'A') {
-                    imgX = Math.max(0, imgX - 10);
-                } else if (e.key === 'd' || e.key === 'D') {
-                    imgX = Math.min(canvas.width - BALL_SIZE * 5, imgX + 10);
-                } else if (e.key === 'enter')
-                    QRCodeSeite1.style.display = 'none';
-            };
 
         updateScoreboard();
 
