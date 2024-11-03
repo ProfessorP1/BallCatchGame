@@ -133,19 +133,28 @@
         const controlSection = document.getElementById('controlSection');
 
         bereit.addEventListener('click', () => {
-            ws.send('Bereit');
+            ws.send(JSON.stringify({
+            type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+            content: 'Bereit' // Der tatsächliche Inhalt (das Wort)
+            }));
             bereitKnopf.style.display = 'none';
             controlSection.style.display = 'flex';
-        })
+        });
         function handleButtonPress(buttonId, message) {
             let intervalId;
             const button = document.getElementById(buttonId);
 
             button.addEventListener('mousedown', () => {
                 console.log(`Sending ${message} command`);
-                ws.send(message);
+                ws.send(JSON.stringify({
+                type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                content: message // Der tatsächliche Inhalt (das Wort)
+                }));
                 intervalId = setInterval(() => {
-                    ws.send(message);
+                    ws.send(JSON.stringify({
+                    type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                    content: message // Der tatsächliche Inhalt (das Wort)
+                    }));
                 }, 100);
             });
 
