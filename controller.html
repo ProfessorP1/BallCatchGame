@@ -148,69 +148,6 @@
             console.log('WebSocket connection closed');
         };
 
-    //Empfangen
-        ws.onmessage = function (event) {
-    if (event.data instanceof Blob) {
-        event.data.arrayBuffer().then(buffer => {
-            const message = decodeBuffer(buffer);
-            processWebSocketMessage(message);
-        });
-    } else if (event.data instanceof ArrayBuffer) {
-        const message = decodeBuffer(event.data);
-        processWebSocketMessage(message);
-    } else if (typeof event.data === 'string') {
-        let message = event.data;
-
-        try {
-            // Versuche, den String als JSON zu parsen
-            const parsedData = JSON.parse(event.data);
-            if (parsedData.type === 'Buffer' && Array.isArray(parsedData.data)) {
-                message = decodeBuffer(parsedData.data);
-            } else {
-                message = parsedData; // Speichert das geparste JSON-Objekt direkt
-            }
-        } catch (error) {
-            console.warn('Fehler beim Parsen der Nachricht als JSON. Verwende den ursprünglichen String.');
-        }
-
-        processWebSocketMessage(message);
-    }
-};
-
-function processWebSocketMessage(message) {
-    console.log('Nachricht vom Server:', message);
-
-    let data;
-    try {
-        // Überprüfen, ob die Nachricht bereits ein Objekt ist
-        if (typeof message === 'object') {
-            data = message; // Es ist bereits ein Objekt
-        } else {
-            data = JSON.parse(message); // Andernfalls versuche, sie zu parsen
-        }
-    } catch (error) {
-        console.error('Fehler beim Parsen der Nachricht:', error);
-        return; // Beende die Funktion, wenn das Parsen fehlschlägt
-
-if (data.type === 'word') {
-if (typeof message === 'object' && message.type === 'word' && message.content.startsWith('name:')) {
-        // Extrahiere den Namen, indem "name:" abgeschnitten wird
-        playerName = message.content.substring(5).trim();
-        console.log('Player Name:', playerName);
-            startGame(); // Starte das Spiel
-            Music2.pause();
-            Music.play();
-        } else {
-            // Behandle andere Inhalte im Worttyp
-            switch (data.content) {
-                case 'Ende':
-                    windows.alert("Ende");
-                break;
-            }
-
-    
-
-        
         const bereit = document.getElementById('bereit');
         const nameInputSection = document.getElementById('nameInputSection');
         const controlSection = document.getElementById('controlSection');
