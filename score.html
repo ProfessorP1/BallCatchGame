@@ -28,14 +28,15 @@
             scoreList.innerHTML = ''; // Leere die Liste
             scores.forEach((score) => {
                 const li = document.createElement('li');
-                li.textContent = `${score.name}: ${score.score}`;
+                // Füge die Rangnummer vor dem Namen hinzu
+                li.textContent = `#${score.rank} ${score.name}: ${score.score}`;
                 scoreList.appendChild(li);
             });
         };
 
         // Beispiel für das Senden eines Scores
         function sendScore(name, score) {
-            const scoreData = JSON.stringify({ type: 'score', name: name, score: score });
+            const scoreData = JSON.stringify({ type: 'score', name: name, playerScore: score });
             ws.send(scoreData);
         }
 
