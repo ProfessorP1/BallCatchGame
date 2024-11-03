@@ -24,6 +24,7 @@
             background-color: #333;
             color: #fff;
             cursor: pointer;
+            user-select:none;
         }
 
         #menuScreen {
@@ -51,6 +52,7 @@
             width: 200px;
             height: 100px;
             color: transparent; /* Hide button text */
+            user-select: none;
         }
         #option1 {
             background: url('B10.png') no-repeat center center;
@@ -86,7 +88,7 @@
             background: url('B9.png') no-repeat center center fixed; /* Control background image */
             background-size: cover;
             display: none;
-            flex-direction: column;
+            flex-direction: row;
             justify-content: center;
             align-items: center;
             z-index: 10;
@@ -99,26 +101,22 @@
     </div>
 
     <div id="controlSection">
-        <button id="leftButton">Left</button>
-        <button id="rightButton">Right</button>
+        <button id="leftButton">Links</button>
+        <button id="rightButton">Rechts</button>
     </div>
-    <audio id="musik1" src="M1.mp3" loop></audio>
+
 
     <script>
 
-        let musicStarted = false;
-        const Music = document.getElementById('musik1');
 
-        function playMusic() {
-            if (!musicStarted) {
-                Music.play();
-                musicStarted = true;
-            }
-        }
+
         const ws = new WebSocket('wss://ballcatch.glitch.me');
         ws.onopen = () => {
             console.log('WebSocket connection established');
-            ws.send('2Player');
+            ws.send(JSON.stringify({
+            type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+            content: '2Player' // Der tatsächliche Inhalt (das Wort)
+            }));
         };
 
         ws.onerror = (error) => {
