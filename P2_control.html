@@ -169,9 +169,15 @@
             button.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 console.log(`Sending ${message} command`);
-                ws.send(message);
+                ws.send(JSON.stringify({
+                    type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                    content: message // Der tatsächliche Inhalt (das Wort)
+                }));
                 intervalId = setInterval(() => {
-                    ws.send(message);
+                    ws.send(JSON.stringify({
+                    type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
+                    content: message // Der tatsächliche Inhalt (das Wort)
+                    }))
                 }, 100);
             });
 
