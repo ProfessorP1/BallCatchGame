@@ -162,7 +162,6 @@
 
         document.getElementById('sendNameButton').addEventListener('click', () => {
             const name = document.getElementById('nameInput').value.trim();
-            playMusic();
             if (name) {
                 ws.send(JSON.stringify({
                 type: 'word',      // Der Typ der Nachricht, wie im Server-Code erwartet
