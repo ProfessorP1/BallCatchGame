@@ -32,7 +32,7 @@ button:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('B9.png') no-repeat center center fixed;
+    background: url('../assets/B9.png') no-repeat center center fixed;
     background-size: cover;
     display: flex;
     flex-direction: column;
@@ -55,15 +55,15 @@ button:hover {
 }
 
 #option1 {
-    background: url('B10.png') no-repeat center center;
+    background: url('../assets/B10.png') no-repeat center center;
 }
 
 #option2 {
-    background: url('B11.png') no-repeat center center;
+    background: url('../assets/B11.png') no-repeat center center;
 }
 
 #option3 {
-    background: url('B12.png') no-repeat center center;
+    background: url('../assets/B12.png') no-repeat center center;
 }
 
 #bereitKnopf, #controlSection {
@@ -72,7 +72,7 @@ button:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('B9.png') no-repeat center center fixed;
+    background: url('../assets/B9.png') no-repeat center center fixed;
     background-size: cover;
     display: flex;
     flex-direction: column;
