@@ -1,35 +1,24 @@
 body {
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #282c34;
+    background-color: #222;
     color: #fff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    text-align: center;
+    font-family: Arial, sans-serif;
 }
 
 button {
-    padding: 15px 30px;
+    padding: 20px;
     margin: 10px;
-    font-size: 18px;
-    border: none;
-    border-radius: 5px;
-    background-color: #61dafb;
-    color: #282c34;
+    font-size: 24px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    background-color: #333;
+    color: #fff;
     cursor: pointer;
-    transition: background-color 0.3s ease;
     user-select: none;
-}
-
-button:hover {
-    background-color: #21a1f1;
-}
-
-button:active {
-    background-color: #1b8cd8;
 }
 
 #menuScreen {
@@ -72,21 +61,32 @@ button:active {
     background: url('B12.png') no-repeat center center;
 }
 
-#bereitKnopf, #controlSection {
+#bereitKnopf {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('B9.png') no-repeat center center fixed;
+    background-size: cover;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 100%;
+    z-index: 20;
 }
 
 #controlSection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('B9.png') no-repeat center center fixed;
+    background-size: cover;
     display: none;
-}
-
-#controlSection button {
-    width: 100px;
-    height: 100px;
-    font-size: 20px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
 }

@@ -94,7 +94,7 @@
           clearInterval(intervalId);
       });
 
-      // for phone
+      // for phones
       button.addEventListener('touchstart', (e) => {
           e.preventDefault();
           console.log(`Sending ${message} command`);

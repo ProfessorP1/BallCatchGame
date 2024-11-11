@@ -1,5 +1,4 @@
 const ws = new WebSocket('wss://ballcatch.glitch.me');
-
 ws.onopen = () => {
     console.log('WebSocket connection established');
     ws.send(JSON.stringify({
@@ -17,7 +16,6 @@ ws.onclose = () => {
 };
 
 const bereit = document.getElementById('bereit');
-const bereitKnopf = document.getElementById('bereitKnopf');
 const controlSection = document.getElementById('controlSection');
 
 bereit.addEventListener('click', () => {
@@ -33,17 +31,18 @@ function handleButtonPress(buttonId, message) {
     let intervalId;
     const button = document.getElementById(buttonId);
 
-    const sendMessage = () => {
+    button.addEventListener('mousedown', () => {
         console.log(`Sending ${message} command`);
         ws.send(JSON.stringify({
             type: 'word',
             content: message
         }));
-    };
-
-    button.addEventListener('mousedown', () => {
-        sendMessage();
-        intervalId = setInterval(sendMessage, 100);
+        intervalId = setInterval(() => {
+            ws.send(JSON.stringify({
+                type: 'word',
+                content: message
+            }));
+        }, 100);
     });
 
     button.addEventListener('mouseup', () => {
@@ -56,8 +55,17 @@ function handleButtonPress(buttonId, message) {
 
     button.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        sendMessage();
-        intervalId = setInterval(sendMessage, 100);
+        console.log(`Sending ${message} command`);
+        ws.send(JSON.stringify({
+            type: 'word',
+            content: message
+        }));
+        intervalId = setInterval(() => {
+            ws.send(JSON.stringify({
+                type: 'word',
+                content: message
+            }));
+        }, 100);
     });
 
     button.addEventListener('touchend', () => {
