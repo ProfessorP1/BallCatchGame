@@ -54,14 +54,14 @@ const platformImg = new Image();
 const gameOverImg = new Image();
 const bgImg1 = new Image();
 const bgImg2 = new Image();
-let currentImgSrc = '../assets/B1.png';
+let currentImgSrc = 'assets/B1.png';
 let currentBgImg = null;
 
 img.src = currentImgSrc;
-platformImg.src = '../assets/B2.png';
-gameOverImg.src = '../assets/B3.png';
-bgImg1.src = '../assets/B5.png';
-bgImg2.src = '../assets/B8.png';
+platformImg.src = 'assets/B1.png';
+gameOverImg.src = 'assets/B3.png';
+bgImg1.src = 'assets/B5.png';
+bgImg2.src = 'assets/B8.png';
 
 function resetBall() {
     ballX = imgX;
@@ -333,7 +333,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-const images = ['../assets/B10.png', '../assets/B11.png', '../assets/B12.png'];
+const images = ['assets/B10.png', 'assets/B11.png', 'assets/B12.png'];
 images.forEach((src, index) => {
     const img = new Image();
     img.src = src;
@@ -506,7 +506,7 @@ function initializeWebSocket() {
                         break;
                     case 'Option1':
                         startScreen.style.display = 'none';
-                        currentImgSrc = '../assets/B1.png';
+                        currentImgSrc = 'assets/B1.png';
                         img.src = currentImgSrc;
                         currentBgImg = bgImg1;
                         bgColor = '#ADD8E6';
@@ -515,7 +515,7 @@ function initializeWebSocket() {
                         break;
                     case 'Option2':
                         startScreen.style.display = 'none';
-                        currentImgSrc = '../assets/B4.png';
+                        currentImgSrc = 'assets/B4.png';
                         img.src = currentImgSrc;
                         currentBgImg = bgImg2;
                         bgColor = '#000000';
@@ -542,7 +542,7 @@ function initializeWebSocket() {
                         I++;
                         if (I === 2) {
                             warteScreen.style.display = 'none';
-                            currentImgSrc = '../assets/B1.png';
+                            currentImgSrc = 'assets/B1.png';
                             img.src = currentImgSrc;
                             currentBgImg = bgImg1;
                             bgColor = '#ADD8E6';
