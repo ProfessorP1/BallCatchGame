@@ -20,7 +20,7 @@ function Haptic() {
 const ws = new WebSocket('wss://ballcatch.glitch.me');
 ws.onopen = () => {
     console.log('WebSocket connection established');
-    ws.send(JSON.stringify({ type: 'word', content: 'controller' }));
+    // Do not send any start command here
 };
 
 ws.onerror = (error) => {
@@ -90,12 +90,16 @@ document.getElementById('option1').addEventListener('click', () => {
     menuScreen.style.display = 'none';
     controlSection.style.display = 'flex';
     Haptic();
+    // Start the game logic here
+    ws.send(JSON.stringify({ type: 'word', content: 'startGame' }));
 });
 
 document.getElementById('option2').addEventListener('click', () => {
     ws.send(JSON.stringify({ type: 'word', content: 'Option2' }));
     menuScreen.style.display = 'none';
     controlSection.style.display = 'flex';
+    // Start the game logic here
+    ws.send(JSON.stringify({ type: 'word', content: 'startGame' }));
 });
 
 document.getElementById('option3').addEventListener('click', () => {
@@ -103,4 +107,6 @@ document.getElementById('option3').addEventListener('click', () => {
     menuScreen.style.display = 'none';
     controlSection.style.display = 'flex';
     bereitKnopf.style.display = 'flex';
+    // Start the game logic here
+    ws.send(JSON.stringify({ type: 'word', content: 'startGame' }));
 });
