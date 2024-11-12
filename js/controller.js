@@ -8,6 +8,21 @@ function playMusic() {
         musicStarted = true;
     }
 }
+const ws = new WebSocket('wss://ballcatch.glitch.me');
+
+nameInputSection.style.display = 'flex';
+
+ws.onopen = () => {
+    console.log('WebSocket connection established');
+};
+
+ws.onerror = (error) => {
+    console.error('WebSocket error:', error);
+};
+
+ws.onclose = () => {
+    console.log('WebSocket connection closed');
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     const nameInputSection = document.getElementById('nameInputSection');
@@ -17,27 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const controlSection = document.getElementById('controlSection');
     const sendNameButton = document.getElementById('sendNameButton');
     let playerName = '';
-    const urlParams = new URLSearchParams(window.location.search);
-    const gameStarted = urlParams.get('gameStarted') === 'true';
+
+    const gameStarted = localStorage.getItem('gameStarted') === 'true';
     console.log('Game started status:', gameStarted);
-
-    // WebSocket connection
-    const ws = new WebSocket('wss://ballcatch.glitch.me');
-
-    nameInputSection.style.display = 'flex';
-
-    ws.onopen = () => {
-        console.log('WebSocket connection established');
-    };
     
-    ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-    };
-    
-    ws.onclose = () => {
-        console.log('WebSocket connection closed');
-    };
-
     // Handle name submission
     sendNameButton.addEventListener('click', () => {
         if (!gameStarted) {
@@ -95,6 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add event listener to Bereit button
     bereitButton.addEventListener('click', onBereitClicked);
+
+    if (gameStarted) {
+        localStorage.setItem('gameStarted', 'false');
+        localStorage.setItem('controllerStarted', 'false');
+    }
 });
 
 

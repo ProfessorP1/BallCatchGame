@@ -400,10 +400,9 @@ updateScoreboard();
 let S1 = 1;
 let ws;
 
-function startGameUrl() {
-    const url = new URL(window.location.href);
-    url.searchParams.set('gameStarted', 'true');
-    window.history.pushState({}, '', url);
+function startGameLocalStorage() {
+    localStorage.setItem('gameStarted', 'true');
+    console.log('Game started, localStorage set');
 }
 
 function initializeWebSocket() {
@@ -432,7 +431,12 @@ function initializeWebSocket() {
         start.style.display = 'none';
         QRCodeSeite1.style.display = 'flex';
         startScreen.style.display = 'none';
-        startGameUrl();
+        startGameLocalStorage();
+    });
+
+    window.addEventListener('beforeunload', () => {
+        localStorage.setItem('gameStarted', 'false');
+        localStorage.setItem('controllerStarted', 'false');
     });
 
     function decodeBuffer(data) {
