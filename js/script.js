@@ -12,6 +12,7 @@ const PLATFORM_HEIGHT = 10;
 const GOLDEN_BALL_INTERVAL = 5000;
 const GOLDEN_BALL_SCORE = 5;
 const WINNING_SCORE = 300;
+const MAX_SHIP_SPEED = 10;
 const Music = document.getElementById('musik1');
 const RBS = document.getElementById('RB');
 const GBS = document.getElementById('GB');
@@ -58,7 +59,7 @@ let currentImgSrc = 'assets/B1.png';
 let currentBgImg = null;
 
 img.src = currentImgSrc;
-platformImg.src = 'assets/B1.png';
+platformImg.src = 'assets/B2.png';
 gameOverImg.src = 'assets/B3.png';
 bgImg1.src = 'assets/B5.png';
 bgImg2.src = 'assets/B8.png';
@@ -68,12 +69,6 @@ function resetBall() {
     ballY = 0;
     ballSpeedY = ballSpeed * 0.3;
     ballSpeedX = (Math.random() + 1.2) * 2;
-}
-
-function checkScore() {
-    if (score % 3 && score > 0) {
-        imgSpeed = imgSpeed + imgSpeedMultiplier;
-    }
 }
 
 function resetSecondBalls() {
@@ -177,7 +172,6 @@ function update() {
 
         if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
             score -= 10;
-            checkScore();
             RBS.play();
             currentScoreDiv.innerText = `Score: ${score}`;
             secondBalls.splice(index, 1);
@@ -209,7 +203,6 @@ function update() {
     if (goldenBallActive) {
         if (isBallTouchingPlatform(goldenBallX, goldenBallY, platformX, platformY)) {
             score += GOLDEN_BALL_SCORE;
-            checkScore();
             GBS.play();
             currentScoreDiv.innerText = `Score: ${score}`;
             goldenBallActive = false;
@@ -219,13 +212,14 @@ function update() {
         }
     }
 
+    // Move ship
     if (!playerControlled) {
         imgX += imgSpeed;
         if (imgX <= 0 || imgX >= canvas.width - BALL_SIZE * 2) {
             imgSpeed = -imgSpeed;
         }
     }
-
+    
     if (goldenBallX <= 0 || goldenBallX >= canvas.width - BALL_SIZE) {
         goldenBallSpeedX = -goldenBallSpeedX;
     }
@@ -233,9 +227,9 @@ function update() {
         ballSpeedX = -ballSpeedX;
     }
 
+    // Collision
     if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
         score++;
-        checkScore();
         WBS.play();
         ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
         resetBall();
@@ -243,6 +237,10 @@ function update() {
         secondBallCounter++;
         if (secondBallCounter % 3 === 0) {
             resetSecondBalls();
+        }
+
+        if (score % 5 === 0 && score > 0) {
+            increaseShipSpeed();
         }
 
         if (score === 25 || score === 50 || score === 100) {
@@ -298,6 +296,10 @@ function update() {
         setTimeout(neustart, 3000);
         return;
     }
+}
+
+function increaseShipSpeed() {
+    imgSpeed = Math.min(MAX_SHIP_SPEED, imgSpeed + 0.5);
 }
 
 function draw() {
@@ -478,9 +480,6 @@ function initializeWebSocket() {
             if (typeof message === 'object' && message.type === 'word' && message.content.startsWith('name:')) {
                 playerName = message.content.substring(5).trim();
                 console.log('Player Name:', playerName);
-                startGame();
-                Music2.pause();
-                Music.play();
             } else {
                 switch (data.content) {
                     case 'right':
@@ -505,6 +504,9 @@ function initializeWebSocket() {
                         B = 1;
                         break;
                     case 'Option1':
+                        startGame();
+                        Music2.pause();
+                        Music.play();
                         startScreen.style.display = 'none';
                         currentImgSrc = 'assets/B1.png';
                         img.src = currentImgSrc;
@@ -514,6 +516,9 @@ function initializeWebSocket() {
                         playerControlled = false;
                         break;
                     case 'Option2':
+                        startGame();
+                        Music2.pause();
+                        Music.play();
                         startScreen.style.display = 'none';
                         currentImgSrc = 'assets/B4.png';
                         img.src = currentImgSrc;

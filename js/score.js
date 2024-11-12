@@ -12,7 +12,7 @@ ws.onmessage = function(event) {
     });
 };
 
-// sending scorre to server
+// Sending Score to server
 function sendScore(name, score) {
     const scoreData = JSON.stringify({ type: 'score', name: name, playerScore: score });
     ws.send(scoreData);
