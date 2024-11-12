@@ -9,18 +9,10 @@ function playMusic() {
     }
 }
 
-// Function to trigger haptic feedback
-function Haptic() {
-    if (navigator.vibrate) {
-        navigator.vibrate(200);
-    }
-}
-
 // Initialize WebSocket connection
 const ws = new WebSocket('wss://ballcatch.glitch.me');
 ws.onopen = () => {
     console.log('WebSocket connection established');
-    // Do not send any start command here
 };
 
 ws.onerror = (error) => {
@@ -37,18 +29,50 @@ const menuScreen = document.getElementById('menuScreen');
 const controlSection = document.getElementById('controlSection');
 const bereitKnopf = document.getElementById('bereitKnopf');
 
+let playerName = '';
+let gameModeSelected = false;
+
 // Handle name submission
 document.getElementById('sendNameButton').addEventListener('click', () => {
     const name = document.getElementById('nameInput').value.trim();
     if (name) {
-        ws.send(JSON.stringify({ type: 'word', content: `name: ${name}` }));
-        console.log(`Sending name: ${name}`);
+        playerName = name;
+        ws.send(JSON.stringify({ type: 'word', content: `name: ${playerName}` }));
+        console.log(`Name registered: ${playerName}`);
         nameInputSection.style.display = 'none';
         menuScreen.style.display = 'flex';
     } else {
         alert('Please enter a name');
     }
 });
+
+// Function to handle game mode selection
+function selectGameMode(mode) {
+    if (playerName) {
+        ws.send(JSON.stringify({ type: 'word', content: mode }));
+        console.log(`Game mode selected: ${mode}`);
+        gameModeSelected = true;
+        menuScreen.style.display = 'none';
+        controlSection.style.display = 'flex';
+        startGame();
+    } else {
+        alert('Please register your name first.');
+    }
+}
+
+// Handle game mode selection
+document.getElementById('option1').addEventListener('click', () => selectGameMode('Option1'));
+document.getElementById('option2').addEventListener('click', () => selectGameMode('Option2'));
+document.getElementById('option3').addEventListener('click', () => selectGameMode('Option3'));
+
+// Start the game
+function startGame() {
+    if (playerName && gameModeSelected) {
+        console.log('Starting game...');
+        ws.send(JSON.stringify({ type: 'word', content: 'startGame' }));
+        playMusic();
+    }
+}
 
 // Function to handle button press events
 function handleButtonPress(buttonId, message) {
@@ -57,9 +81,6 @@ function handleButtonPress(buttonId, message) {
 
     button.addEventListener('mousedown', () => {
         console.log(`Sending ${message} command`);
-        if (message === 'left' || message === 'right') {
-            Haptic();
-        }
         ws.send(JSON.stringify({ type: 'word', content: message }));
         intervalId = setInterval(() => {
             ws.send(JSON.stringify({ type: 'word', content: message }));
@@ -83,30 +104,3 @@ function handleButtonPress(buttonId, message) {
 // Set up button press handlers
 handleButtonPress('leftButton', 'left');
 handleButtonPress('rightButton', 'right');
-
-// Handle game mode selection
-document.getElementById('option1').addEventListener('click', () => {
-    ws.send(JSON.stringify({ type: 'word', content: 'Option1' }));
-    menuScreen.style.display = 'none';
-    controlSection.style.display = 'flex';
-    Haptic();
-    // Start the game logic here
-    ws.send(JSON.stringify({ type: 'word', content: 'startGame' }));
-});
-
-document.getElementById('option2').addEventListener('click', () => {
-    ws.send(JSON.stringify({ type: 'word', content: 'Option2' }));
-    menuScreen.style.display = 'none';
-    controlSection.style.display = 'flex';
-    // Start the game logic here
-    ws.send(JSON.stringify({ type: 'word', content: 'startGame' }));
-});
-
-document.getElementById('option3').addEventListener('click', () => {
-    ws.send(JSON.stringify({ type: 'word', content: 'Option3' }));
-    menuScreen.style.display = 'none';
-    controlSection.style.display = 'flex';
-    bereitKnopf.style.display = 'flex';
-    // Start the game logic here
-    ws.send(JSON.stringify({ type: 'word', content: 'startGame' }));
-});
