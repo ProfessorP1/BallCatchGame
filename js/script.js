@@ -4,7 +4,7 @@ const nameInput = document.getElementById('nameInput');
 const scoreboardDiv = document.getElementById('scoreboard');
 const currentScoreDiv = document.getElementById('currentScore');
 const startScreen = document.getElementById('startScreen');
-const Nameeingabe = document.getElementById('starScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
 
 const BALL_SIZE = 20;
 const PLATFORM_WIDTH = 100;
@@ -12,7 +12,7 @@ const PLATFORM_HEIGHT = 10;
 const GOLDEN_BALL_INTERVAL = 5000;
 const GOLDEN_BALL_SCORE = 5;
 const WINNING_SCORE = 300;
-const MAX_SHIP_SPEED = 10;
+const MAX_SHIP_SPEED = 7;
 const Music = document.getElementById('musik1');
 const RBS = document.getElementById('RB');
 const GBS = document.getElementById('GB');
@@ -32,7 +32,6 @@ let goldenBallColor = '#ffd700';
 let bgColor = '#000000';
 let imgX = 2;
 let imgSpeed = 3;
-let imgSpeedMultiplier = 1.1;
 let secondBallCounter = 0;
 let originalImgSpeed = imgSpeed;
 let maxBallSpeed = 20;
@@ -46,6 +45,7 @@ let musicStarted = false;
 let B = 0;
 let I = 0;
 let Backup = false;
+var gameStartedCheck = false;
 
 const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
 
@@ -121,9 +121,7 @@ function drawPlatform() {
 }
 
 function drawGameOver() {
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '75px Arial';
-    ctx.fillText('GAME OVER', canvas.width / 2 - 200, canvas.height / 2);
+    gameOverScreen.style.display = 'flex';
 }
 
 function drawWinScreen() {
@@ -144,14 +142,6 @@ function neustart() {
     Ende();
     location.reload();
 }
-
-start.addEventListener('click', () => {
-    Music.pause();
-    Music2.play();
-    StartButton.style.display = 'none';
-    QRCodeSeite1.style.display = 'flex';
-    startScreen.style.display = 'none';
-})
 
 function update() {
     if (isGameOver)
@@ -227,7 +217,7 @@ function update() {
         ballSpeedX = -ballSpeedX;
     }
 
-    // Collision
+    // Collision stuff
     if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
         score++;
         WBS.play();
@@ -410,6 +400,12 @@ updateScoreboard();
 let S1 = 1;
 let ws;
 
+function startGameUrl() {
+    const url = new URL(window.location.href);
+    url.searchParams.set('gameStarted', 'true');
+    window.history.pushState({}, '', url);
+}
+
 function initializeWebSocket() {
     ws = new WebSocket('wss://ballcatch.glitch.me');
 
@@ -429,6 +425,15 @@ function initializeWebSocket() {
     ws.onerror = function (error) {
         console.error('WebSocket error:', error);
     };
+
+    start.addEventListener('click', () => {
+        Music.pause();
+        Music2.play();
+        start.style.display = 'none';
+        QRCodeSeite1.style.display = 'flex';
+        startScreen.style.display = 'none';
+        startGameUrl();
+    });
 
     function decodeBuffer(data) {
         return String.fromCharCode.apply(null, new Uint8Array(data));
@@ -546,6 +551,7 @@ function initializeWebSocket() {
                     case 'Bereit':
                         I++;
                         if (I === 2) {
+                            start.style.display = 'none';
                             warteScreen.style.display = 'none';
                             currentImgSrc = 'assets/B1.png';
                             img.src = currentImgSrc;

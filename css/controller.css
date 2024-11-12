@@ -1,16 +1,16 @@
 body {
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    background: url('../assets/B9.png') no-repeat center center fixed; /* Background image */
+    background: url('../assets/B9.png') no-repeat center center fixed;
     background-size: cover;
     color: #fff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: Arial, sans-serif;
     text-align: center;
-    flex-direction: column;
-    padding: 20px;
+    position: relative;
 }
 
 button {
@@ -34,8 +34,8 @@ button:active {
     transform: scale(0.95);
 }
 
-#nameInputSection, #menuScreen, #controlSection, #bereitKnopf {
-    display: flex;
+#nameInputSection, #menuScreen, #bereitKnopf {
+    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -59,6 +59,21 @@ button:active {
     max-width: 300px;
     background-color: #333;
     color: #fff;
+}
+
+#bereit {
+    width: 200px;
+    height: 50px;
+    font-size: 18px;
+    padding: 10px 20px;
+    background-color: rgba(76, 175, 80, 0.8);
+    color: #fff;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#bereit:hover {
+    background-color: rgba(69, 160, 73, 0.8);
 }
 
 .option-button {
@@ -91,12 +106,27 @@ button:active {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
-#leftButton, #rightButton {
-    width: 100px;
+#controlSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
     height: 100px;
-    font-size: 24px;
-    padding: 10px;
-    margin: 20px;
+}
+
+#leftButton, #rightButton {
+    padding: 50px 80px;
+    font-size: 18px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#leftButton:hover, #rightButton:hover {
+    background-color: #0056b3;
 }
 
 #sendNameButton {
