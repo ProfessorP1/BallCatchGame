@@ -1,6 +1,7 @@
 let musicStarted = false;
 const Music = document.getElementById('musik1');
 
+// Function to play background music
 function playMusic() {
     if (!musicStarted) {
         Music.play();
@@ -8,19 +9,18 @@ function playMusic() {
     }
 }
 
+// Function to trigger haptic feedback
 function Haptic() {
     if (navigator.vibrate) {
         navigator.vibrate(200);
     }
 }
 
+// Initialize WebSocket connection
 const ws = new WebSocket('wss://ballcatch.glitch.me');
 ws.onopen = () => {
     console.log('WebSocket connection established');
-    ws.send(JSON.stringify({
-        type: 'word',
-        content: 'controller'
-    }));
+    ws.send(JSON.stringify({ type: 'word', content: 'controller' }));
 };
 
 ws.onerror = (error) => {
@@ -31,38 +31,26 @@ ws.onclose = () => {
     console.log('WebSocket connection closed');
 };
 
-const bereit = document.getElementById('bereit');
+// DOM elements
 const nameInputSection = document.getElementById('nameInputSection');
+const menuScreen = document.getElementById('menuScreen');
 const controlSection = document.getElementById('controlSection');
+const bereitKnopf = document.getElementById('bereitKnopf');
 
-bereit.addEventListener('click', () => {
-    ws.send(JSON.stringify({
-        type: 'word',
-        content: 'Bereit'
-    }));
-    bereitKnopf.style.display = 'none';
-    controlSection.style.display = 'flex';
-});
-
+// Handle name submission
 document.getElementById('sendNameButton').addEventListener('click', () => {
     const name = document.getElementById('nameInput').value.trim();
     if (name) {
-        ws.send(JSON.stringify({
-            type: 'word',
-            content: 'Test'
-        }));
-        ws.send(JSON.stringify({
-            type: 'word',
-            content: `name: ${name}`
-        }));
+        ws.send(JSON.stringify({ type: 'word', content: `name: ${name}` }));
         console.log(`Sending name: ${name}`);
         nameInputSection.style.display = 'none';
-        controlSection.style.display = 'flex';
+        menuScreen.style.display = 'flex';
     } else {
         alert('Please enter a name');
     }
 });
 
+// Function to handle button press events
 function handleButtonPress(buttonId, message) {
     let intervalId;
     const button = document.getElementById(buttonId);
@@ -72,81 +60,47 @@ function handleButtonPress(buttonId, message) {
         if (message === 'left' || message === 'right') {
             Haptic();
         }
-        ws.send(JSON.stringify({
-            type: 'word',
-            content: message
-        }));
+        ws.send(JSON.stringify({ type: 'word', content: message }));
         intervalId = setInterval(() => {
-            ws.send(JSON.stringify({
-                type: 'word',
-                content: message
-            }));
+            ws.send(JSON.stringify({ type: 'word', content: message }));
         }, 100);
     });
 
-    button.addEventListener('mouseup', () => {
-        clearInterval(intervalId);
-    });
-
-    button.addEventListener('mouseleave', () => {
-        clearInterval(intervalId);
-    });
-
+    button.addEventListener('mouseup', () => clearInterval(intervalId));
+    button.addEventListener('mouseleave', () => clearInterval(intervalId));
     button.addEventListener('touchstart', (e) => {
         e.preventDefault();
         console.log(`Sending ${message} command`);
-        ws.send(JSON.stringify({
-            type: 'word',
-            content: message
-        }));
+        ws.send(JSON.stringify({ type: 'word', content: message }));
         intervalId = setInterval(() => {
-            ws.send(JSON.stringify({
-                type: 'word',
-                content: message
-            }));
+            ws.send(JSON.stringify({ type: 'word', content: message }));
         }, 100);
     });
-
-    button.addEventListener('touchend', () => {
-        clearInterval(intervalId);
-    });
-
-    button.addEventListener('touchcancel', () => {
-        clearInterval(intervalId);
-    });
+    button.addEventListener('touchend', () => clearInterval(intervalId));
+    button.addEventListener('touchcancel', () => clearInterval(intervalId));
 }
 
+// Set up button press handlers
 handleButtonPress('leftButton', 'left');
 handleButtonPress('rightButton', 'right');
 
-const option1Button = document.getElementById('option1');
-const option2Button = document.getElementById('option2');
-const option3Button = document.getElementById('option3');
-
-option1Button.addEventListener('click', () => {
-    ws.send(JSON.stringify({
-        type: 'word',
-        content: 'Option1'
-    }));
+// Handle game mode selection
+document.getElementById('option1').addEventListener('click', () => {
+    ws.send(JSON.stringify({ type: 'word', content: 'Option1' }));
     menuScreen.style.display = 'none';
+    controlSection.style.display = 'flex';
     Haptic();
 });
 
-option2Button.addEventListener('click', () => {
-    ws.send(JSON.stringify({
-        type: 'word',
-        content: 'Option2'
-    }));
+document.getElementById('option2').addEventListener('click', () => {
+    ws.send(JSON.stringify({ type: 'word', content: 'Option2' }));
     menuScreen.style.display = 'none';
+    controlSection.style.display = 'flex';
 });
 
-option3Button.addEventListener('click', () => {
-    ws.send(JSON.stringify({
-        type: 'word',
-        content: 'Option3'
-    }));
+document.getElementById('option3').addEventListener('click', () => {
+    ws.send(JSON.stringify({ type: 'word', content: 'Option3' }));
     menuScreen.style.display = 'none';
-    nameInputSection.style.display = 'none';
-    controlSection.style.display = 'none';
+    controlSection.style.display = 'flex';
     bereitKnopf.style.display = 'flex';
 });
