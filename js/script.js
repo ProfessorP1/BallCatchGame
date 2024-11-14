@@ -45,7 +45,6 @@ let musicStarted = false;
 let B = 0;
 let I = 0;
 let Backup = false;
-var gameStartedCheck = false;
 
 const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
 
@@ -209,7 +208,7 @@ function update() {
             imgSpeed = -imgSpeed;
         }
     }
-    
+
     if (goldenBallX <= 0 || goldenBallX >= canvas.width - BALL_SIZE) {
         goldenBallSpeedX = -goldenBallSpeedX;
     }
@@ -400,17 +399,13 @@ updateScoreboard();
 let S1 = 1;
 let ws;
 
-function startGameLocalStorage() {
-    localStorage.setItem('gameStarted', 'true');
-    console.log('Game started, localStorage set');
-}
-
 function initializeWebSocket() {
     ws = new WebSocket('wss://ballcatch.glitch.me');
 
     ws.onopen = function () {
         console.log('WebSocket connection established');
         incrementScoreViaWebSocket();
+        decrementScoreViaWebSocket
     };
 
     ws.onmessage = function (event) {
@@ -431,12 +426,39 @@ function initializeWebSocket() {
         start.style.display = 'none';
         QRCodeSeite1.style.display = 'flex';
         startScreen.style.display = 'none';
-        startGameLocalStorage();
+
+        const gameStateInterval = setInterval(() => {
+            ws.send(JSON.stringify({
+                type: 'word',
+                content: 'gameState:started'
+            }));
+            console.log('Sending gameState:started');
+        }, 3000);
+
+        // Wait for controller to start
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'word' && data.content === 'controller:started') {
+                clearInterval(gameStateInterval);
+                ws.send(JSON.stringify({
+                    type: 'word',
+                    content: 'gameState:stopped'
+                }));
+                console.log('Received controller:started; Send gameState:stopped');
+            }
+        };
     });
 
     window.addEventListener('beforeunload', () => {
-        localStorage.setItem('gameStarted', 'false');
-        localStorage.setItem('controllerStarted', 'false');
+        ws.send(JSON.stringify({
+            type: 'word',
+            content: 'gameState:stopped'
+        }));
+
+        ws.send(JSON.stringify({
+            type: 'word',
+            content: 'controller:stopped'
+        }));
     });
 
     function decodeBuffer(data) {
@@ -484,7 +506,6 @@ function initializeWebSocket() {
             console.error('Fehler beim Parsen der Nachricht:', error);
             return;
         }
-
         if (data.type === 'word') {
             if (typeof message === 'object' && message.type === 'word' && message.content.startsWith('name:')) {
                 playerName = message.content.substring(5).trim();
@@ -582,11 +603,25 @@ function initializeWebSocket() {
 function incrementScoreViaWebSocket() {
     const intervalId = setInterval(() => {
         if (S1 <= score && S2 == 1) {
-            ws.send('increment');
+            ws.send(JSON.stringify({
+                type: 'word',
+                content: 'increment'
+            }))
             S1++;
         }
-    }, 10);
+    }, 100);
 }
 
-// Initialize WebSocket connection when the script loads
+function decrementScoreViaWebSocket() {
+    const intervalId = setInterval(() => {
+        if (S1 <= score && S2 == 1) {
+            ws.send(JSON.stringify({
+                type: 'word',
+                content: 'increment'
+            }))
+            S1--;
+        }
+    }, 100);
+}
+
 initializeWebSocket();

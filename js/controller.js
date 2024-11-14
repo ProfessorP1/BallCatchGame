@@ -32,12 +32,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const controlSection = document.getElementById('controlSection');
     const sendNameButton = document.getElementById('sendNameButton');
     let playerName = '';
+    let gameStarted = false;
 
-    const gameStarted = localStorage.getItem('gameStarted') === 'true';
     console.log('Game started status:', gameStarted);
-    
+
     // Handle name submission
     sendNameButton.addEventListener('click', () => {
+        let controllerInterval;
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'word') {
+                if (data.content === 'gameState:started') {
+                    controllerInterval = setInterval(() => {
+                        ws.send(JSON.stringify({
+                            type: 'word',
+                            content: 'controller:started'
+                        }));
+                    }, 3000);
+                    gameStarted = true;
+                    console.log('Received gameState:started; Send controller:started until end');
+                }
+                if (data.content === 'gameState:stopped') {
+                    ws.send(JSON.stringify({
+                        type: 'word',
+                        content: 'controller:stopped'
+                    }));
+                    clearInterval(controllerInterval);
+                    gameStarted = false;
+                    console.log('Received gameState:stopped; Send controller:stopped');
+                }
+            }
+        };
         if (!gameStarted) {
             alert('The game has not started yet. Please wait.');
             return;
@@ -55,10 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to handle game mode selection
     function selectGameMode(mode) {
-        if (!gameStarted) {
-            alert('The game has not started yet. Please wait.');
-            return;
-        }
         if (playerName) {
             menuScreen.style.display = 'none';
             if (mode === 'Option3') {
@@ -78,12 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to handle Bereit button click
     function onBereitClicked() {
-      ws.send(JSON.stringify({
-          type: 'word',
-          content: 'Bereit'
-      }));
-      bereitKnopf.style.display = 'none';
-      controlSection.style.display = 'flex';
+        ws.send(JSON.stringify({
+            type: 'word',
+            content: 'Bereit'
+        }));
+        bereitKnopf.style.display = 'none';
+        controlSection.style.display = 'flex';
     }
 
     // Add event listeners for game mode selection
@@ -91,12 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('option2').addEventListener('click', () => selectGameMode('Option2'));
     document.getElementById('option3').addEventListener('click', () => selectGameMode('Option3'));
 
-    // Add event listener to Bereit button
+    // Add event listener to readybtn
     bereitButton.addEventListener('click', onBereitClicked);
 
     if (gameStarted) {
-        localStorage.setItem('gameStarted', 'false');
-        localStorage.setItem('controllerStarted', 'false');
+        ws.send(JSON.stringify({
+            type: 'word',
+            content: 'gameState:stopped'
+        }));
     }
 });
 
