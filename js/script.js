@@ -5,6 +5,7 @@ const scoreboardDiv = document.getElementById('scoreboard');
 const currentScoreDiv = document.getElementById('currentScore');
 const startScreen = document.getElementById('startScreen');
 const Nameeingabe = document.getElementById('starScreen');
+const warteScreen = document.getElementById('warteScreen');
 
 const BALL_SIZE = 20;
 const PLATFORM_WIDTH = 100;
