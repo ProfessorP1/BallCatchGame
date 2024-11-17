@@ -35,7 +35,7 @@ button:active {
 }
 
 #nameInputSection, #menuScreen, #bereitKnopf {
-    display: none;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
