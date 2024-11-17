@@ -1,4 +1,5 @@
 let musicStarted = false;
+let gameStarted = false;
 const Music = document.getElementById('musik1');
 
 // Function to play background music
@@ -14,6 +15,10 @@ nameInputSection.style.display = 'flex';
 
 ws.onopen = () => {
     console.log('WebSocket connection established');
+    ws.send(JSON.stringify({
+        type: 'word',
+        content: 'controller:started'
+    }));
 };
 
 ws.onerror = (error) => {
@@ -24,6 +29,16 @@ ws.onclose = () => {
     console.log('WebSocket connection closed');
 };
 
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === 'word' && data.content === 'gameState:started') {
+        gameStarted = true;
+        console.log("GameBereiterhalten");
+        
+    }
+
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const nameInputSection = document.getElementById('nameInputSection');
     const menuScreen = document.getElementById('menuScreen');
@@ -32,19 +47,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const controlSection = document.getElementById('controlSection');
     const sendNameButton = document.getElementById('sendNameButton');
     let playerName = '';
-    let gameStarted = false;
+
 
     console.log('Game started status:', gameStarted);
 
     // Handle name submission
     sendNameButton.addEventListener('click', () => {
         let controllerInterval;
+        ws.send(JSON.stringify({ type: 'word', content: `ControllerReady` }));
+       // ws.onmessage = (event) => {
+        //    const data = JSON.parse(event.data);wwwwwwwwwwwwwwwwww
+            //if (data.type === 'word') {
 
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'word') {
-                if (data.content === 'gameState:started') {
-                    controllerInterval = setInterval(() => {
+      /*      if (data.type === 'word' && data.content === 'gameState:started') {
+                console.log("müsste gehen");
+                gameStarted = true;
+                    /*controllerInterval = setInterval(() => {
                         ws.send(JSON.stringify({
                             type: 'word',
                             content: 'controller:started'
@@ -61,9 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     clearInterval(controllerInterval);
                     gameStarted = false;
                     console.log('Received gameState:stopped; Send controller:stopped');
-                }
-            }
-        };
+               */// }
+            //}
+       // };
         if (!gameStarted) {
             alert('The game has not started yet. Please wait.');
             return;
@@ -74,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nameInputSection.style.display = 'none';
             menuScreen.style.display = 'flex';
             ws.send(JSON.stringify({ type: 'word', content: `name:${playerName}` })); // Send player name
+            gameStarted = false;
         } else {
             alert('Please enter a name');
         }
@@ -116,12 +135,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listener to readybtn
     bereitButton.addEventListener('click', onBereitClicked);
 
-    if (gameStarted) {
-        ws.send(JSON.stringify({
-            type: 'word',
-            content: 'gameState:stopped'
-        }));
-    }
+    //if (gameStarted) {
+      //  ws.send(JSON.stringify({
+        //    type: 'word',
+        //    content: 'gameState:stopped'
+     //   }));
+  //  }
 });
 
 
