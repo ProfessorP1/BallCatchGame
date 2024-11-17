@@ -4,7 +4,7 @@ const nameInput = document.getElementById('nameInput');
 const scoreboardDiv = document.getElementById('scoreboard');
 const currentScoreDiv = document.getElementById('currentScore');
 const startScreen = document.getElementById('startScreen');
-const gameOverScreen = document.getElementById('gameOverScreen');
+const Nameeingabe = document.getElementById('starScreen');
 
 const BALL_SIZE = 20;
 const PLATFORM_WIDTH = 100;
@@ -12,7 +12,7 @@ const PLATFORM_HEIGHT = 10;
 const GOLDEN_BALL_INTERVAL = 5000;
 const GOLDEN_BALL_SCORE = 5;
 const WINNING_SCORE = 300;
-const MAX_SHIP_SPEED = 7;
+const MAX_SHIP_SPEED = 10;
 const Music = document.getElementById('musik1');
 const RBS = document.getElementById('RB');
 const GBS = document.getElementById('GB');
@@ -32,6 +32,7 @@ let goldenBallColor = '#ffd700';
 let bgColor = '#000000';
 let imgX = 2;
 let imgSpeed = 3;
+let imgSpeedMultiplier = 1.1;
 let secondBallCounter = 0;
 let originalImgSpeed = imgSpeed;
 let maxBallSpeed = 20;
@@ -45,7 +46,7 @@ let musicStarted = false;
 let B = 0;
 let I = 0;
 let Backup = false;
-let Begin = true;
+let Ready = false;
 
 const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
 
@@ -121,7 +122,9 @@ function drawPlatform() {
 }
 
 function drawGameOver() {
-    gameOverScreen.style.display = 'flex';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '75px Arial';
+    ctx.fillText('GAME OVER', canvas.width / 2 - 200, canvas.height / 2);
 }
 
 function drawWinScreen() {
@@ -164,6 +167,15 @@ function incrementGold() {
     }))
 }
 
+start.addEventListener('click', () => {
+    Music.pause();
+    Music2.play();
+    Ready = true;
+    StartButton.style.display = 'none';
+    QRCodeSeite1.style.display = 'flex';
+    startScreen.style.display = 'none';
+})
+
 function update() {
     if (isGameOver)
         return;
@@ -184,7 +196,7 @@ function update() {
         if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
             score -= 10;
             RBS.play();
-            decrement()
+            decrement();
             currentScoreDiv.innerText = `Score: ${score}`;
             secondBalls.splice(index, 1);
 
@@ -232,7 +244,7 @@ function update() {
             imgSpeed = -imgSpeed;
         }
     }
-
+    
     if (goldenBallX <= 0 || goldenBallX >= canvas.width - BALL_SIZE) {
         goldenBallSpeedX = -goldenBallSpeedX;
     }
@@ -240,7 +252,7 @@ function update() {
         ballSpeedX = -ballSpeedX;
     }
 
-    // Collision stuff
+    // Collision
     if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
         score++;
         WBS.play();
@@ -387,7 +399,7 @@ function isBallTouchingPlatform(ballX, ballY, platformX, platformY) {
 function Ende() {
     ws.send(JSON.stringify({
         type: 'word',
-        content: 'Ende'
+        content: 'end'
     }));
 }
 
@@ -443,48 +455,6 @@ function initializeWebSocket() {
         console.error('WebSocket error:', error);
     };
 
-    start.addEventListener('click', () => {
-        Music.pause();
-        Music2.play();
-        start.style.display = 'none';
-        QRCodeSeite1.style.display = 'flex';
-        startScreen.style.display = 'none';
-
-        /*const gameStateInterval = setInterval(() => {
-            ws.send(JSON.stringify({
-                type: 'word',
-                content: 'gameState:started'
-            }));
-            console.log('Sending gameState:started');
-        }, 3000);*/
-
-        // Wait for controller to start
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'word' && data.content === 'controller:started' && Begin === true) {
-                console.log('bereit von Controller erhalten')
-                //clearInterval(gameStateInterval);
-                ws.send(JSON.stringify({
-                    type: 'word',
-                    content: 'gameState:started'   //gameState:stopped
-                }));
-                //console.log('Received controller:started; Send gameState:stopped');
-            }
-        };
-    });
-
-    //window.addEventListener('beforeunload', () => {
-        //ws.send(JSON.stringify({
-          //  type: 'word',
-          //  content: 'gameState:stopped'
-        //}));
-
-       // ws.send(JSON.stringify({
-         //   type: 'word',
-           // content: 'controller:stopped'
-       // }));
-   // });
-
     function decodeBuffer(data) {
         return String.fromCharCode.apply(null, new Uint8Array(data));
     }
@@ -530,6 +500,7 @@ function initializeWebSocket() {
             console.error('Fehler beim Parsen der Nachricht:', error);
             return;
         }
+
         if (data.type === 'word') {
             if (typeof message === 'object' && message.type === 'word' && message.content.startsWith('name:')) {
                 playerName = message.content.substring(5).trim();
@@ -597,13 +568,20 @@ function initializeWebSocket() {
                     case 'clear':
                         clearScoreboard();
                         break;
-                    case 'ControllerReady':
-                        Begin = false;
+                    case 'controlleropen':
+                        if (Ready === true) {
+                        ws.send(JSON.stringify({
+                            type: 'word',
+                            content: 'gameState:started'
+                        }));
+                        }
+                        break;
+                    case 'controllerReady':
+                        Ready = false;
                         break;
                     case 'Bereit':
                         I++;
                         if (I === 2) {
-                            start.style.display = 'none';
                             warteScreen.style.display = 'none';
                             currentImgSrc = 'assets/B1.png';
                             img.src = currentImgSrc;
@@ -626,5 +604,5 @@ function initializeWebSocket() {
         }
     }
 }
-
+// Initialize WebSocket connection when the script loads
 initializeWebSocket();
