@@ -5,7 +5,6 @@ const scoreboardDiv = document.getElementById('scoreboard');
 const currentScoreDiv = document.getElementById('currentScore');
 const startScreen = document.getElementById('startScreen');
 const gameOverScreen = document.getElementById('gameOverScreen');
-const warteScreen = document.getElementById('warteScreen');
 
 const BALL_SIZE = 20;
 const PLATFORM_WIDTH = 100;
@@ -46,7 +45,7 @@ let musicStarted = false;
 let B = 0;
 let I = 0;
 let Backup = false;
-let Ready = false;
+let Begin = true;
 
 const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
 
@@ -144,6 +143,27 @@ function neustart() {
     location.reload();
 }
 
+function decrement() {
+    ws.send(JSON.stringify({
+        type: 'word',
+        content: 'decrement'
+    }));
+}
+
+function incrementWhite() {
+    ws.send(JSON.stringify({
+        type: 'word',
+        content: 'incrementWhite'
+    }))
+}
+
+function incrementGold() {
+    ws.send(JSON.stringify({
+        type: 'word',
+        content: 'incrementGold'
+    }))
+}
+
 function update() {
     if (isGameOver)
         return;
@@ -164,6 +184,7 @@ function update() {
         if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
             score -= 10;
             RBS.play();
+            decrement()
             currentScoreDiv.innerText = `Score: ${score}`;
             secondBalls.splice(index, 1);
 
@@ -195,6 +216,7 @@ function update() {
         if (isBallTouchingPlatform(goldenBallX, goldenBallY, platformX, platformY)) {
             score += GOLDEN_BALL_SCORE;
             GBS.play();
+            incrementGold();
             currentScoreDiv.innerText = `Score: ${score}`;
             goldenBallActive = false;
             setTimeout(resetGoldenBall, 5000);
@@ -222,6 +244,7 @@ function update() {
     if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
         score++;
         WBS.play();
+        incrementWhite();
         ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
         resetBall();
         currentScoreDiv.innerText = `Score: ${score}`;
@@ -406,8 +429,6 @@ function initializeWebSocket() {
 
     ws.onopen = function () {
         console.log('WebSocket connection established');
-        incrementScoreViaWebSocket();
-        decrementScoreViaWebSocket
     };
 
     ws.onmessage = function (event) {
@@ -425,11 +446,44 @@ function initializeWebSocket() {
     start.addEventListener('click', () => {
         Music.pause();
         Music2.play();
-        Ready = true;
         start.style.display = 'none';
         QRCodeSeite1.style.display = 'flex';
         startScreen.style.display = 'none';
+
+        /*const gameStateInterval = setInterval(() => {
+            ws.send(JSON.stringify({
+                type: 'word',
+                content: 'gameState:started'
+            }));
+            console.log('Sending gameState:started');
+        }, 3000);*/
+
+        // Wait for controller to start
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'word' && data.content === 'controller:started' && Begin === true) {
+                console.log('bereit von Controller erhalten')
+                //clearInterval(gameStateInterval);
+                ws.send(JSON.stringify({
+                    type: 'word',
+                    content: 'gameState:started'   //gameState:stopped
+                }));
+                //console.log('Received controller:started; Send gameState:stopped');
+            }
+        };
     });
+
+    //window.addEventListener('beforeunload', () => {
+        //ws.send(JSON.stringify({
+          //  type: 'word',
+          //  content: 'gameState:stopped'
+        //}));
+
+       // ws.send(JSON.stringify({
+         //   type: 'word',
+           // content: 'controller:stopped'
+       // }));
+   // });
 
     function decodeBuffer(data) {
         return String.fromCharCode.apply(null, new Uint8Array(data));
@@ -543,15 +597,8 @@ function initializeWebSocket() {
                     case 'clear':
                         clearScoreboard();
                         break;
-                    case 'controlleropen':
-                        if (Ready === true) {
-                        ws.send(JSON.stringify({
-                            type: 'word',
-                            content: 'gameState:started'
-                        }));
-                        }
-                    case 'controllerReady':
-                        Ready = false;
+                    case 'ControllerReady':
+                        Begin = false;
                         break;
                     case 'Bereit':
                         I++;
@@ -578,30 +625,6 @@ function initializeWebSocket() {
             console.log('Unbekannter Nachrichtentyp:', data.type);
         }
     }
-}
-
-function incrementScoreViaWebSocket() {
-    const intervalId = setInterval(() => {
-        if (S1 <= score && S2 == 1) {
-            ws.send(JSON.stringify({
-                type: 'word',
-                content: 'increment'
-            }))
-            S1++;
-        }
-    }, 100);
-}
-
-function decrementScoreViaWebSocket() {
-    const intervalId = setInterval(() => {
-        if (S1 <= score && S2 == 1) {
-            ws.send(JSON.stringify({
-                type: 'word',
-                content: 'increment'
-            }))
-            S1--;
-        }
-    }, 100);
 }
 
 initializeWebSocket();
