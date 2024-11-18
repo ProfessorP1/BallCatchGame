@@ -18,7 +18,7 @@ updateScoreboard();
 initializeWebSocket();
 
 function initializeWebSocket() {
-    const ws = new WebSocket('wss://ballcatch.glitch.me');
+    const ws = new WebSocket('wss://fanzy.club:8080');
 
     ws.onopen = function() {
         console.log('WebSocket connection established');

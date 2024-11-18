@@ -435,10 +435,9 @@ function Moves() {
 updateScoreboard();
 
 let S1 = 1;
-let ws;
 
 function initializeWebSocket() {
-    ws = new WebSocket('wss://ballcatch.glitch.me');
+    const ws = new WebSocket('wss://fanzy.club:8080');
 
     ws.onopen = function () {
         console.log('WebSocket connection established');

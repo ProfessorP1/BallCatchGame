@@ -11,7 +11,7 @@ function playMusic() {
 }
 
 // Initialize WebSocket connection
-const ws = new WebSocket('wss://ballcatch.glitch.me');
+const ws = new WebSocket('wss://fanzy.club:8080');
 ws.onopen = () => {
     console.log('WebSocket connection established');
     ws.send(JSON.stringify({ type: 'word', content: `controlleropen` })); //controlleropen
