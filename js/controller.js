@@ -47,7 +47,8 @@ let gameModeSelected = false;
 // Handle name submission
 document.getElementById('sendNameButton').addEventListener('click', () => {
     const name = document.getElementById('nameInput').value.trim();
-    if (name && gameStarted === true) {
+    if (name) {
+    if (gameStarted === true) {
         playerName = name;
         ws.send(JSON.stringify({ type: 'word', content: `name: ${playerName}` }));
         ws.send(JSON.stringify({ type: 'word', content: `controllerReady` }));
@@ -56,6 +57,8 @@ document.getElementById('sendNameButton').addEventListener('click', () => {
         menuScreen.style.display = 'flex';
     } else {
         alert('Please enter a name');
+    }} else {
+        alert('The Game has not started yet');
     }
 });
 
@@ -69,7 +72,7 @@ function selectGameMode(mode) {
         controlSection.style.display = 'flex';
         startGame();
     } else {
-        alert('Please register your name first or the game has not started yet');
+        alert('Please register your name first');
     }
 }
 
