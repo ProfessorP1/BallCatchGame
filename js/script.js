@@ -7,6 +7,8 @@ const waitingScreen = document.getElementById('waitingScreen');
 const startBtn = document.getElementById('startBtn');
 const gameOverScreen = document.getElementById('gameOverScreen');
 const ws = new WebSocket('wss://fanzy.club:8080');
+// Second WebSocket connection for incrementing score because ESP update it everytime it sends a message
+const wsForIncrement = new WebSocket('wss://ballcatch.glitch.me');
 
 const BALL_SIZE = 20;
 const PLATFORM_WIDTH = 100;
@@ -81,7 +83,7 @@ function resetBall() {
     ballX = imgX;
     ballY = 0;
     ballSpeedY = ballSpeed * 0.3;
-    ballSpeedX = Math.max((Math.random() + 1.9, 1.4)) * 1.3;
+    ballSpeedX = Math.max((Math.random() + 1.5, 2.25)) * 1.35;
 }
 
 function resetSecondBalls() {
@@ -100,7 +102,7 @@ function resetGoldenBall() {
     goldenBallX = imgX;
     goldenBallY = -30;
     goldenBallSpeedY = ballSpeed * goldenBallSpeedMultiplier * 0.3;
-    goldenBallSpeedX = Math.max((Math.random() + 1.1) * 1.2, 1.7) * goldenBallSpeedMultiplier;
+    goldenBallSpeedX = Math.max((Math.random() + 1.1) * 1.6, 1.7) * goldenBallSpeedMultiplier;
     goldenBallActive = true;
 }
 
@@ -166,21 +168,21 @@ function restartGame() {
 }
 
 function decrement() {
-    ws.send(JSON.stringify({
+    wsForIncrement.send(JSON.stringify({
         type: 'action',
         content: 'decrement'
     }));
 }
 
 function incrementWhite() {
-    ws.send(JSON.stringify({
+    wsForIncrement.send(JSON.stringify({
         type: 'action',
         content: 'incrementWhite'
     }));
 }
 
 function incrementGold() {
-    ws.send(JSON.stringify({
+    wsForIncrement.send(JSON.stringify({
         type: 'action',
         content: 'incrementGold'
     }));
@@ -408,12 +410,28 @@ function initializeWebSocket() {
         console.log('WebSocket connection established');
     };
 
+    wsForIncrement.onopen = function () {
+        console.log('WebSocket for Increment connection established');
+    };
+
+    wsForIncrement.onmessage = function (event) {
+        console.log('Message from server increment:', event.data);
+    };
+
     ws.onmessage = function (event) {
         console.log('Message from server:', event.data);
     };
 
+    wsForIncrement.onclose = function () {
+        console.log('WebSocket for Increment connection closed');
+    };
+
     ws.onclose = function () {
         console.log('WebSocket connection closed');
+    };
+    
+    wsForIncrement.onerror = function (error) {
+        console.error('WebSocket for Increment error:', error);
     };
 
     ws.onerror = function (error) {

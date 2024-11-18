@@ -110,13 +110,13 @@ wss.on("connection", (ws, req) => {
                         content: data.content
                     });
                     break;
-
+                /* not needed anymore because of 2 websocket servers
                 case 'action':
                     broadcastMessage({
                         type: 'action',
                         content: data.content
                     });
-                    break;
+                    break;*/
                 default:
                     // Handle unknown message types
                     console.log(`Unknown message type from ${ip}:`, data.type);
