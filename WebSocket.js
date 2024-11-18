@@ -116,7 +116,7 @@ wss.on("connection", (ws, req) => {
                         type: 'action',
                         content: data.content
                     });
-
+                    break;
                 default:
                     // Handle unknown message types
                     console.log(`Unknown message type from ${ip}:`, data.type);
