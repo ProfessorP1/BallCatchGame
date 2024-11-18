@@ -167,21 +167,21 @@ function restartGame() {
 
 function decrement() {
     ws.send(JSON.stringify({
-        type: 'arduino',
+        type: 'action',
         content: 'decrement'
     }));
 }
 
 function incrementWhite() {
     ws.send(JSON.stringify({
-        type: 'arduino',
+        type: 'action',
         content: 'incrementWhite'
     }));
 }
 
 function incrementGold() {
     ws.send(JSON.stringify({
-        type: 'arduino',
+        type: 'action',
         content: 'incrementGold'
     }));
 }
@@ -300,7 +300,7 @@ function endGame(win = false) {
         playerScore: score
     }));
     ws.send(JSON.stringify({
-        type: 'arduino',
+        type: 'action',
         content: 'end'
     }));
     setTimeout(restartGame, 4000);
