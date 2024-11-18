@@ -281,7 +281,7 @@ function update() {
             resetSecondBalls();
         }
 
-        if (score % 25 === 0 && score > 0) {
+        if (score % 20 === 0 && score > 0) {
             moreSecondBalls();
         }
 
