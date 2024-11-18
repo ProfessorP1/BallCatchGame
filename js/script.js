@@ -15,7 +15,7 @@ const PLATFORM_WIDTH = 100;
 const PLATFORM_HEIGHT = 10;
 const GOLDEN_BALL_INTERVAL = 5000;
 const GOLDEN_BALL_SCORE = 5;
-const WINNING_SCORE = 150;
+const WINNING_SCORE = 300;
 const MAX_SHIP_SPEED = 10;
 
 const winSound = document.getElementById('winSound');
@@ -83,7 +83,7 @@ function resetBall() {
     ballX = imgX;
     ballY = 0;
     ballSpeedY = ballSpeed * 0.3;
-    ballSpeedX = Math.max((Math.random() + 1.5, 2.25)) * 1.35;
+    ballSpeedX = Math.max((Math.random() + 1.1, 3)) * 1.35;
 }
 
 function resetSecondBalls() {
@@ -301,7 +301,7 @@ function endGame(win = false) {
         name: playerName,
         playerScore: score
     }));
-    ws.send(JSON.stringify({
+    wsForIncrement.send(JSON.stringify({
         type: 'action',
         content: 'end'
     }));
