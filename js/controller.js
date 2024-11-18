@@ -56,9 +56,9 @@ document.getElementById('sendNameButton').addEventListener('click', () => {
         nameInputSection.style.display = 'none';
         menuScreen.style.display = 'flex';
     } else {
-        alert('Please enter a name');
-    }} else {
         alert('The Game has not started yet');
+    }} else {
+        alert('Please enter a name'); 
     }
 });
 
