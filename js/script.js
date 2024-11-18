@@ -83,7 +83,7 @@ function resetBall() {
     ballX = imgX;
     ballY = 0;
     ballSpeedY = ballSpeed * 0.3;
-    ballSpeedX = Math.max((Math.random() + 1.1, 3)) * 1.35;
+    ballSpeedX = Math.max((Math.random() + 1.1, 1.5)) * 1.35;
 }
 
 function resetSecondBalls() {
@@ -97,6 +97,18 @@ function resetSecondBalls() {
         });
     }
 }
+
+function moreSecondBalls() {
+    for (let i = 0; i < 4; i++) {
+        secondBalls.push({
+            x: imgX,
+            y: 0,
+            speedY: ballSpeed * 0.3,
+            speedX: (Math.random() + 1.1) * 1.1
+        });
+    }
+}
+
 
 function resetGoldenBall() {
     goldenBallX = imgX;
@@ -158,8 +170,8 @@ function drawWinScreen() {
 }
 
 function updateScoreboard() {
-    scoreboardDiv.innerHTML = '<h2>Scoreboard</h2><ol>' + 
-        scoreboard.map(entry => `<li>${entry.name}: ${entry.score}</li>`).join('') + 
+    scoreboardDiv.innerHTML = '<h2>Scoreboard</h2><ol>' +
+        scoreboard.map(entry => `<li>${entry.name}: ${entry.score}</li>`).join('') +
         '</ol>';
 }
 
@@ -269,6 +281,10 @@ function update() {
             resetSecondBalls();
         }
 
+        if (score % 25 === 0 && score > 0) {
+            moreSecondBalls();
+        }
+
         if (score % 5 === 0 && score > 0) {
             increaseShipSpeed();
         }
@@ -311,15 +327,30 @@ function endGame(win = false) {
 function increaseShipSpeed() {
     imgSpeed = Math.min(MAX_SHIP_SPEED, imgSpeed + 0.5);
 }
+function calculateBackgroundColor(score) {
+    const colors = [
+        { r: 173, g: 216, b: 230 }, // Light blue
+        { r: 160, g: 200, b: 220 },
+        { r: 150, g: 180, b: 210 },
+        { r: 140, g: 160, b: 200 },
+        { r: 130, g: 140, b: 190 },
+        { r: 120, g: 120, b: 180 },
+        { r: 110, g: 100, b: 170 },
+        { r: 100, g: 80, b: 160 }, // Purple
+    ];
+    const index = Math.min(Math.floor(score / 20), colors.length - 1);
+    const color = colors[index];
+    return `rgb(${color.r}, ${color.g}, ${color.b})`;
+}
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const bgColor = calculateBackgroundColor(score);
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (currentBgImg) {
         ctx.drawImage(currentBgImg, 0, 0, canvas.width, canvas.height);
-    } else if (bgColor) {
-        ctx.fillStyle = bgColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     drawBall(ballX, ballY, ballColor);
@@ -429,7 +460,7 @@ function initializeWebSocket() {
     ws.onclose = function () {
         console.log('WebSocket connection closed');
     };
-    
+
     wsForIncrement.onerror = function (error) {
         console.error('WebSocket for Increment error:', error);
     };
@@ -484,7 +515,7 @@ function initializeWebSocket() {
             return;
         }
 
-        if(data.type === 'scoreboard') {
+        if (data.type === 'scoreboard') {
             scoreboard.length = 0;
             data.scores.forEach(entry => {
                 scoreboard.push({ name: entry.name, score: entry.score });
@@ -492,7 +523,7 @@ function initializeWebSocket() {
             scoreboard.sort((a, b) => b.score - a.score);
 
             updateScoreboard();
-        }else if (data.type === 'word') {
+        } else if (data.type === 'word') {
             if (typeof message === 'object' && message.type === 'word' && message.content.startsWith('name:')) {
                 playerName = message.content.substring(5).trim();
                 console.log('Player Name:', playerName);
@@ -575,7 +606,7 @@ function initializeWebSocket() {
                         break;
                     case 'Bereit2':
                         ready2 = true;
-                        break;    
+                        break;
                     default:
                         console.log('Unknown command in word type:', data.content);
                 }

@@ -35,7 +35,9 @@ button:active {
     transform: scale(0.95);
 }
 
-#nameInputSection, #menuScreen, #readySection {
+#nameInputSection,
+#menuScreen,
+#readySection {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -115,7 +117,8 @@ button:active {
     height: 100px;
 }
 
-#leftBtn, #rightBtn {
+#leftBtn,
+#rightBtn {
     padding: 50px 80px;
     font-size: 18px;
     background-color: #007BFF;
@@ -126,7 +129,8 @@ button:active {
     transition: background-color 0.3s ease;
 }
 
-#leftBtn:hover, #rightBtn:hover {
+#leftBtn:hover,
+#rightBtn:hover {
     background-color: #0056b3;
 }
 
@@ -156,7 +160,8 @@ button:active {
         max-width: 90%;
     }
 
-    #leftBtn, #rightBtn {
+    #leftBtn,
+    #rightBtn {
         width: 80px;
         height: 80px;
         font-size: 20px;

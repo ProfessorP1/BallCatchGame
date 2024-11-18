@@ -1,6 +1,6 @@
   canvas {
-      display: block;
-      margin: 0 auto;
+    display: block;
+    margin: 0 auto;
   }
 
   body {
@@ -32,21 +32,21 @@
   }
 
   #nameInput::placeholder {
-      color: #bbb;
+    color: #bbb;
   }
 
   #scoreboard {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      text-align: left;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    text-align: left;
   }
 
   #currentScore {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 20px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
   }
 
   #nameInputScreen {
@@ -119,8 +119,8 @@
   }
 
   #gameOverScreen h1 {
-      margin-bottom: 20px;
-      animation: shake 0.5s;
+    margin-bottom: 20px;
+    animation: shake 0.5s;
   }
 
   #winScreen {
@@ -130,7 +130,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: green; /* Hintergrund grün */
+    background-color: green;
+    /* Hintergrund grün */
     color: #fff;
     flex-direction: column;
     justify-content: center;
@@ -139,29 +140,52 @@
     font-size: 24px;
     text-align: center;
     animation: fadeIn 1s;
-}
+  }
 
-#winScreen h1 {
+  #winScreen h1 {
     margin-bottom: 20px;
     animation: pulse 1s infinite alternate;
-}
+  }
 
-/* Keyframe animations */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+  /* Keyframe animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
 
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
-}
+    to {
+      opacity: 1;
+    }
+  }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.1); }
-}
+  @keyframes shake {
+    0% {
+      transform: translateX(0);
+    }
 
+    25% {
+      transform: translateX(-5px);
+    }
+
+    50% {
+      transform: translateX(5px);
+    }
+
+    75% {
+      transform: translateX(-5px);
+    }
+
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+
+    100% {
+      transform: scale(1.1);
+    }
+  }

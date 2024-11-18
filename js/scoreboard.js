@@ -19,20 +19,20 @@ initializeWebSocket();
 
 function initializeWebSocket() {
 
-    ws.onopen = function() {
+    ws.onopen = function () {
         console.log('WebSocket connection established');
     };
 
-    ws.onmessage = function(event) {
+    ws.onmessage = function (event) {
         console.log('Message from server:', event.data);
         processWebSocketMessage(event.data);
     };
 
-    ws.onclose = function() {
+    ws.onclose = function () {
         console.log('WebSocket connection closed');
     };
 
-    ws.onerror = function(error) {
+    ws.onerror = function (error) {
         console.error('WebSocket error:', error);
     };
 

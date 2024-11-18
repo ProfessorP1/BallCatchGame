@@ -1,6 +1,6 @@
 const ws = new WebSocket('wss://fanzy.club:8080');
 
-ws.onmessage = function(event) {
+ws.onmessage = function (event) {
     const scores = JSON.parse(event.data);
     const scoreList = document.getElementById('scoreList');
     scoreList.innerHTML = ''; // clear list before adding new scores
