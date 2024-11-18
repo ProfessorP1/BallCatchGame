@@ -149,21 +149,21 @@ function neustart() {
 
 function decrement() {
     ws.send(JSON.stringify({
-        type: 'word',
+        type: 'action',
         content: 'decrement'
     }));
 }
 
 function incrementWhite() {
     ws.send(JSON.stringify({
-        type: 'word',
+        type: 'action',
         content: 'incrementWhite'
     }))
 }
 
 function incrementGold() {
     ws.send(JSON.stringify({
-        type: 'word',
+        type: 'action',
         content: 'incrementGold'
     }))
 }
