@@ -10,30 +10,39 @@
     <div id="startScreen" style="display: flex; position: absolute;">
         <img src="assets/Start.gif" alt="Start Screen">
     </div>
-    <div id="StartButton" style="display: flex; position: absolute; width: 100px; height: 50px;">
-        <button id="start">Start</button>
+    <div id="startSection" style="display: flex; position: absolute; width: 100px; height: 50px;">
+        <button id="startBtn">Start</button>
     </div>
+    <div id="winScreen">
+        <h1>Du hast gewonnen!</h1>
+        <p></p>
+        <p1></p1>
+    </div>    
     <div id="gameOverScreen" style="display: none">
         <h1>Game Over</h1>
+        <p></p>
+        <p1></p1>
     </div>
-    <div id="warteScreen" style="display: none; position: absolute;">
-        <img src="assets/B13.png" alt="Waiting Screen">
+    <div id="waitingScreen" style="display: none; position: absolute;">
+        <img src="assets/waitingForPlayers.png" alt="Waiting Screen">
     </div>
-    <div id="QRCodeSeite1" style="display: none; position: absolute;">
+    <div id="qrCodePage1" style="display: none; position: absolute;">
         <img src="assets/QRP1.png" alt="QR Code">
     </div>
-    <div id="QRCodeSeite2" style="display: none; position: absolute;">
+    <div id="qrCodePage2" style="display: none; position: absolute;">
         <img src="assets/QRP2.png" alt="QR Code2">
     </div>
     <canvas id="gameCanvas" width="1280" height="700"></canvas>
     <input type="text" id="nameInput" placeholder="Enter your name">
     <div id="scoreboard"></div>
     <div id="currentScore"></div>
-    <audio id="musik1" src="assets/sounds/M1.mp3" loop></audio>
-    <audio id="TM" src="assets/sounds/Titelmusik.mp3" loop></audio>
-    <audio id="GB" src="assets/sounds/GB.mp3"></audio>
-    <audio id="RB" src="assets/sounds/RB.mp3"></audio>
-    <audio id="WB" src="assets/sounds/WB.mp3"></audio>
+    <audio id="music1" src="assets/sounds/M1.mp3" loop></audio>
+    <audio id="titleMusic" src="assets/sounds/Titelmusik.mp3" loop></audio>
+    <audio id="goldenBallSound" src="assets/sounds/GB.mp3"></audio>
+    <audio id="redBallSound" src="assets/sounds/RB.mp3"></audio>
+    <audio id="whiteBallSound" src="assets/sounds/WB.mp3"></audio>
+    <audio id="winSound" src="assets/sounds/win.m4a"></audio>
+    <audio id="gameOverSound" src="assets/sounds/gameover.m4a"></audio>
     <script src="js/script.js"></script>
 </body>
 </html>

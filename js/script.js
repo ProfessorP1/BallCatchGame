@@ -1,25 +1,34 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const nameInput = document.getElementById('nameInput');
 const scoreboardDiv = document.getElementById('scoreboard');
 const currentScoreDiv = document.getElementById('currentScore');
 const startScreen = document.getElementById('startScreen');
-const Nameeingabe = document.getElementById('starScreen');
-const warteScreen = document.getElementById('warteScreen');
+const waitingScreen = document.getElementById('waitingScreen');
+const startBtn = document.getElementById('startBtn');
+const gameOverScreen = document.getElementById('gameOverScreen');
 
 const BALL_SIZE = 20;
 const PLATFORM_WIDTH = 100;
 const PLATFORM_HEIGHT = 10;
 const GOLDEN_BALL_INTERVAL = 5000;
 const GOLDEN_BALL_SCORE = 5;
-const WINNING_SCORE = 300;
+const WINNING_SCORE = 5;
 const MAX_SHIP_SPEED = 10;
-const Music = document.getElementById('musik1');
-const RBS = document.getElementById('RB');
-const GBS = document.getElementById('GB');
-const WBS = document.getElementById('WB');
-const Music2 = document.getElementById('TM');
-let ballSpeed = 5;
+
+const winSound = document.getElementById('winSound');
+const gameOverSound = document.getElementById('gameOverSound');
+const music1 = document.getElementById('music1');
+const redBallSound = document.getElementById('redBallSound');
+const goldenBallSound = document.getElementById('goldenBallSound');
+const whiteBallSound = document.getElementById('whiteBallSound');
+const titleMusic = document.getElementById('titleMusic');
+
+let winSoundPlayed = false;
+let gameOverSoundPlayed = false;
+
+let ballSpeed = 1.5;
+let secondBallSpeedMultiplier = 0.2;
+let goldenBallSpeedMultiplier = 1.05;
 let ballX, ballY, ballSpeedY, ballSpeedX;
 let secondBalls = [];
 let goldenBallX, goldenBallY, goldenBallSpeedX, goldenBallSpeedY, goldenBallActive = false;
@@ -36,18 +45,18 @@ let imgSpeed = 3;
 let imgSpeedMultiplier = 1.1;
 let secondBallCounter = 0;
 let originalImgSpeed = imgSpeed;
-let maxBallSpeed = 20;
+let maxBallSpeed = 3;
 let maxImgSpeed = 8;
 let teleport = false;
 let teleportInterval;
 let playerControlled = false;
-let S2 = 1;
-let Wert = 0;
 let musicStarted = false;
-let B = 0;
 let I = 0;
-let Backup = false;
-let Ready = false;
+let ready = false;
+
+let ready1 = false;
+let ready2 = false;
+let option3 = false;
 
 const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
 
@@ -57,29 +66,31 @@ const platformImg = new Image();
 const gameOverImg = new Image();
 const bgImg1 = new Image();
 const bgImg2 = new Image();
-let currentImgSrc = 'assets/B1.png';
+let currentImgSrc = 'assets/ship.png';
 let currentBgImg = null;
 
 img.src = currentImgSrc;
-platformImg.src = 'assets/B2.png';
-gameOverImg.src = 'assets/B3.png';
-bgImg1.src = 'assets/B5.png';
-bgImg2.src = 'assets/B8.png';
+platformImg.src = 'assets/platform.png';
+gameOverImg.src = 'assets/gameOver.png';
+bgImg1.src = 'assets/backgroundGame1.png';
+bgImg2.src = 'assets/backgroundGame2.png';
+
 
 function resetBall() {
     ballX = imgX;
     ballY = 0;
     ballSpeedY = ballSpeed * 0.3;
-    ballSpeedX = (Math.random() + 1.2) * 2;
+    ballSpeedX = Math.max((Math.random() + 1.9, 1.4)) * 1.3;
 }
 
 function resetSecondBalls() {
+    secondBalls = [];
     for (let i = 0; i < 2; i++) {
         secondBalls.push({
             x: imgX,
             y: 0,
             speedY: ballSpeed * 0.2,
-            speedX: (Math.random() - 0.5) * 1
+            speedX: (Math.random() - 0.5) * 0.5
         });
     }
 }
@@ -87,8 +98,8 @@ function resetSecondBalls() {
 function resetGoldenBall() {
     goldenBallX = imgX;
     goldenBallY = -30;
-    goldenBallSpeedY = ballSpeed * 0.3;
-    goldenBallSpeedX = Math.max((Math.random() + 1.0) * 2, 1.5);
+    goldenBallSpeedY = ballSpeed * goldenBallSpeedMultiplier * 0.3;
+    goldenBallSpeedX = Math.max((Math.random() + 1.1) * 1.2, 1.7) * goldenBallSpeedMultiplier;
     goldenBallActive = true;
 }
 
@@ -102,7 +113,6 @@ function resetGame() {
     imgSpeed = originalImgSpeed * 0.5;
     score = 0;
     secondBallCounter = 0;
-    secondBalls = [];
     goldenBallActive = false;
     resetBall();
     resetPlatform();
@@ -123,13 +133,25 @@ function drawPlatform() {
 }
 
 function drawGameOver() {
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '75px Arial';
-    ctx.fillText('GAME OVER', canvas.width / 2 - 200, canvas.height / 2);
+    gameOverScreen.style.display = 'flex';
+    gameOverScreen.querySelector('p').innerText = `${playerName},`;
+    gameOverScreen.querySelector('p1').innerText = `du konntest leider nur ${score} Punkt(e) erzielen!`;
+    music1.pause();
+    if (!gameOverSoundPlayed) {
+        gameOverSound.play();
+        gameOverSoundPlayed = true;
+    }
 }
 
 function drawWinScreen() {
-    ctx.drawImage(gameOverImg, canvas.width / 2 - gameOverImg.width / 2, canvas.height / 2 - gameOverImg.height / 2);
+    winScreen.style.display = 'flex';
+    winScreen.querySelector('p').innerText = `Glückwunsch, ${playerName}!`;
+    winScreen.querySelector('p1').innerText = `Du konntest ${score} Punkte erzielen!`;
+    music1.pause();
+    if (!winSoundPlayed) {
+        winSound.play();
+        winSoundPlayed = true;
+    }
 }
 
 function updateScoreboard() {
@@ -142,8 +164,7 @@ function clearScoreboard() {
     updateScoreboard();
 }
 
-function neustart() {
-    Ende();
+function restartGame() {
     location.reload();
 }
 
@@ -158,28 +179,27 @@ function incrementWhite() {
     ws.send(JSON.stringify({
         type: 'action',
         content: 'incrementWhite'
-    }))
+    }));
 }
 
 function incrementGold() {
     ws.send(JSON.stringify({
         type: 'action',
         content: 'incrementGold'
-    }))
+    }));
 }
 
-start.addEventListener('click', () => {
-    Music.pause();
-    Music2.play();
-    Ready = true;
-    StartButton.style.display = 'none';
-    QRCodeSeite1.style.display = 'flex';
+startBtn.addEventListener('click', () => {
+    music1.pause();
+    titleMusic.play();
+    ready = true;
+    startBtn.style.display = 'none';
+    qrCodePage1.style.display = 'flex';
     startScreen.style.display = 'none';
-})
+});
 
 function update() {
-    if (isGameOver)
-        return;
+    if (isGameOver) return;
 
     ballY += ballSpeedY;
     ballX += ballSpeedX;
@@ -196,28 +216,13 @@ function update() {
 
         if (ball.y + BALL_SIZE >= platformY && ball.x >= platformX && ball.x <= platformX + PLATFORM_WIDTH) {
             score -= 10;
-            RBS.play();
+            redBallSound.play();
             decrement();
             currentScoreDiv.innerText = `Score: ${score}`;
             secondBalls.splice(index, 1);
 
             if (score < 0) {
-                isGameOver = true;
-                drawGameOver();
-                scoreboard.push({ name: playerName, score });
-                scoreboard.sort((a, b) => b.score - a.score);
-                if (scoreboard.length > 20) {
-                    scoreboard.pop();
-                }
-                console.log(playerName);
-                ws.send(JSON.stringify({
-                    type: 'score',
-                    name: playerName,
-                    playerScore: score
-                }));
-                setTimeout(neustart, 3000);
-                localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-                updateScoreboard();
+                endGame();
                 return;
             }
         } else if (ball.y > canvas.height) {
@@ -228,7 +233,7 @@ function update() {
     if (goldenBallActive) {
         if (isBallTouchingPlatform(goldenBallX, goldenBallY, platformX, platformY)) {
             score += GOLDEN_BALL_SCORE;
-            GBS.play();
+            goldenBallSound.play();
             incrementGold();
             currentScoreDiv.innerText = `Score: ${score}`;
             goldenBallActive = false;
@@ -238,14 +243,13 @@ function update() {
         }
     }
 
-    // Move ship
     if (!playerControlled) {
         imgX += imgSpeed;
         if (imgX <= 0 || imgX >= canvas.width - BALL_SIZE * 2) {
             imgSpeed = -imgSpeed;
         }
     }
-    
+
     if (goldenBallX <= 0 || goldenBallX >= canvas.width - BALL_SIZE) {
         goldenBallSpeedX = -goldenBallSpeedX;
     }
@@ -253,10 +257,10 @@ function update() {
         ballSpeedX = -ballSpeedX;
     }
 
-    // Collision
+    // Collision detection with platform
     if (ballY + BALL_SIZE >= platformY && ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH) {
         score++;
-        WBS.play();
+        whiteBallSound.play();
         incrementWhite();
         ballSpeed = Math.min(maxBallSpeed, ballSpeed + 1);
         resetBall();
@@ -270,59 +274,37 @@ function update() {
             increaseShipSpeed();
         }
 
-        if (score === 25 || score === 50 || score === 100) {
-            ballSpeed = Math.min(maxBallSpeed, ballSpeed * 1.5);
-            if (!teleport) {
-                imgSpeed = Math.min(maxImgSpeed, imgSpeed * 1.5);
-            } else {
-                clearInterval(teleportInterval);
-                let newInterval = 4000 / (Math.pow(1.5, Math.floor(score / 25)));
-                teleportInterval = setInterval(() => {
-                    imgX = Math.random() * (canvas.width - BALL_SIZE * 2);
-                }, newInterval);
-            }
-        }
-
         if (score >= WINNING_SCORE) {
-            isGameOver = true;
-            drawWinScreen();
-            ws.send("clear");
-            scoreboard.push({ name: playerName, score });
-            scoreboard.sort((a, b) => b.score - a.score);
-            if (scoreboard.length > 20) {
-                scoreboard.pop();
-            }
-            console.log(playerName);
-            ws.send(JSON.stringify({
-                type: 'score',
-                name: playerName,
-                playerScore: score
-            }));
-            localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-            updateScoreboard();
-            setTimeout(neustart, 3000);
+            endGame(true);
             return;
         }
     } else if (ballY > canvas.height) {
-        console.log("Ball fell out of bounds");
-        isGameOver = true;
-        drawGameOver();
-        scoreboard.push({ name: playerName, score });
-        scoreboard.sort((a, b) => b.score - a.score);
-        if (scoreboard.length > 20) {
-            scoreboard.pop();
-        }
-        console.log(playerName);
-        ws.send(JSON.stringify({
-            type: 'score',
-            name: playerName,
-            playerScore: score
-        }));
-        localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-        updateScoreboard();
-        setTimeout(neustart, 3000);
+        endGame();
         return;
     }
+}
+
+function endGame(win = false) {
+    isGameOver = true;
+    if (win) {
+        drawWinScreen();
+    } else {
+        drawGameOver();
+    }
+    //scoreboard.push({ name: playerName, score });
+    scoreboard.sort((a, b) => b.score - a.score);
+    if (scoreboard.length > 20) {
+        scoreboard.pop();
+    }
+    console.log(playerName);
+    ws.send(JSON.stringify({
+        type: 'score',
+        name: playerName,
+        playerScore: score
+    }));
+    //localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+    updateScoreboard();
+    setTimeout(restartGame, 4000);
 }
 
 function increaseShipSpeed() {
@@ -358,33 +340,27 @@ function draw() {
 function gameLoop() {
     update();
     draw();
-    Moves();
+    moves();
     requestAnimationFrame(gameLoop);
 }
 
-const images = ['assets/B10.png', 'assets/B11.png', 'assets/B12.png'];
-images.forEach((src, index) => {
-    const img = new Image();
-    img.src = src;
-});
-
 function startGame() {
-    QRCodeSeite1.style.display = 'none';
-    QRCodeSeite2.style.display = 'none';
+    qrCodePage1.style.display = 'none';
+    qrCodePage2.style.display = 'none';
     resetGame();
     gameLoop();
 }
 
 function playMusic() {
     if (!musicStarted) {
-        Music.play();
+        music1.play();
         musicStarted = true;
     }
 }
 
 function playMusic2() {
     if (!musicStarted) {
-        Music2.play();
+        titleMusic.play();
         musicStarted = true;
     }
 }
@@ -395,13 +371,6 @@ function isBallTouchingPlatform(ballX, ballY, platformX, platformY) {
 
     return (ballBottom >= platformY && ballY <= platformBottom &&
         ballX >= platformX && ballX <= platformX + PLATFORM_WIDTH);
-}
-
-function Ende() {
-    ws.send(JSON.stringify({
-        type: 'word',
-        content: 'end'
-    }));
 }
 
 let moveLeft = false;
@@ -423,7 +392,7 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
-function Moves() {
+function moves() {
     if (moveLeft) {
         platformX = Math.max(0, platformX - 5);
     }
@@ -434,10 +403,9 @@ function Moves() {
 
 updateScoreboard();
 
-let S1 = 1;
+const ws = new WebSocket('wss://fanzy.club:8080');
 
 function initializeWebSocket() {
-    const ws = new WebSocket('wss://fanzy.club:8080');
 
     ws.onopen = function () {
         console.log('WebSocket connection established');
@@ -479,7 +447,7 @@ function initializeWebSocket() {
                     message = parsedData;
                 }
             } catch (error) {
-                console.warn('Fehler beim Parsen der Nachricht als JSON. Verwende den ursprünglichen String.');
+                console.warn('Error parsing message as JSON. Using original string.');
             }
 
             processWebSocketMessage(message);
@@ -487,7 +455,7 @@ function initializeWebSocket() {
     };
 
     function processWebSocketMessage(message) {
-        console.log('Nachricht vom Server:', message);
+        console.log('Message from server:', message);
 
         let data;
         try {
@@ -497,7 +465,7 @@ function initializeWebSocket() {
                 data = JSON.parse(message);
             }
         } catch (error) {
-            console.error('Fehler beim Parsen der Nachricht:', error);
+            console.error('Error parsing message:', error);
             return;
         }
 
@@ -526,14 +494,13 @@ function initializeWebSocket() {
                     case 'P2S':
                         drawBall(ballX, ballY, ballColor);
                         secondBalls.forEach(ball => drawBall(ball.x, ball.y, secondBallColor));
-                        B = 1;
                         break;
                     case 'Option1':
                         startGame();
-                        Music2.pause();
-                        Music.play();
+                        titleMusic.pause();
+                        music1.play();
                         startScreen.style.display = 'none';
-                        currentImgSrc = 'assets/B1.png';
+                        currentImgSrc = 'assets/ship.png';
                         img.src = currentImgSrc;
                         currentBgImg = bgImg1;
                         bgColor = '#ADD8E6';
@@ -542,10 +509,10 @@ function initializeWebSocket() {
                         break;
                     case 'Option2':
                         startGame();
-                        Music2.pause();
-                        Music.play();
+                        titleMusic.pause();
+                        music1.play();
                         startScreen.style.display = 'none';
-                        currentImgSrc = 'assets/B4.png';
+                        currentImgSrc = 'assets/wizzard.png';
                         img.src = currentImgSrc;
                         currentBgImg = bgImg2;
                         bgColor = '#000000';
@@ -558,51 +525,60 @@ function initializeWebSocket() {
                         break;
                     case 'Option3':
                         startScreen.style.display = 'none';
-                        warteScreen.style.display = 'none';
-                        QRCodeSeite2.style.display = 'flex';
+                        waitingScreen.style.display = 'none';
+                        qrCodePage2.style.display = 'flex';
+                        option3 = true;
                         break;
                     case '2Player':
-                        warteScreen.style.display = 'flex';
-                        QRCodeSeite2.style.display = 'none';
+                        if (!option3) return; // Check if option3 is true so that the game doesnt render before the QR code is scanned
+                        startScreen.style.display = 'none';
+                        qrCodePage1.style.display = 'none';
+                        qrCodePage2.style.display = 'none';
+                        waitingScreen.style.display = 'flex';
                         break;
                     case 'clear':
                         clearScoreboard();
                         break;
                     case 'controlleropen':
-                        if (Ready === true) {
-                        ws.send(JSON.stringify({
-                            type: 'word',
-                            content: 'gameState:started'
-                        }));
+                        if (ready) {
+                            ws.send(JSON.stringify({
+                                type: 'word',
+                                content: 'gameState:started'
+                            }));
                         }
                         break;
                     case 'controllerReady':
-                        Ready = false;
+                        ready = false;
                         break;
                     case 'Bereit':
-                        I++;
-                        if (I === 2) {
-                            warteScreen.style.display = 'none';
-                            currentImgSrc = 'assets/B1.png';
-                            img.src = currentImgSrc;
-                            currentBgImg = bgImg1;
-                            bgColor = '#ADD8E6';
-                            teleport = false;
-                            playerControlled = true;
-                            startGame();
-                            Music.play();
-                        }
+                        ready1 = true;
                         break;
-                    case 'Backup':
-                        Backup = true;
+                    case 'Bereit2':
+                        ready2 = true;
+                        break;
                     default:
-                        console.log('Unbekannter Befehl im Worttyp:', data.content);
+                        console.log('Unknown command in word type:', data.content);
+                }
+                if (ready1 && ready2) {
+                    titleMusic.pause();
+                    waitingScreen.style.display = 'none';
+                    currentImgSrc = 'assets/ship.png';
+                    img.src = currentImgSrc;
+                    currentBgImg = bgImg1;
+                    bgColor = '#ADD8E6';
+                    teleport = false;
+                    playerControlled = true;
+                    startGame();
+                    music1.play();
+                    ready1 = false;
+                    ready2 = false;
                 }
             }
         } else {
-            console.log('Unbekannter Nachrichtentyp:', data.type);
+            console.log('Unknown message type:', data.type);
         }
     }
 }
+
 // Initialize WebSocket connection when the script loads
 initializeWebSocket();

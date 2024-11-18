@@ -42,7 +42,7 @@ function initializeWebSocket() {
     }
 
     function processWebSocketMessage(message) {
-        if (message.startsWith('Score:')) {
+        if (message.startsWith('score')) {
             score = message.substring(6).trim();
             scoreboard.push({ name: playerName, score });
             scoreboard.sort((a, b) => b.score - a.score);
@@ -51,7 +51,7 @@ function initializeWebSocket() {
             }
             updateScoreboard();
         }
-        if (message.startsWith('Playername:')) {
+        if (message.startsWith('name')) {
             playerName = message.substring(11).trim();
             scoreboard.push({ name: playerName, score });
             scoreboard.sort((a, b) => b.score - a.score);

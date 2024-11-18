@@ -1,11 +1,11 @@
 let musicStarted = false;
 let gameStarted = false;
-const Music = document.getElementById('musik1');
+const music1 = document.getElementById('music1');
 
 // Function to play background music
 function playMusic() {
     if (!musicStarted) {
-        Music.play();
+        music1.play();
         musicStarted = true;
     }
 }
@@ -14,7 +14,7 @@ function playMusic() {
 const ws = new WebSocket('wss://fanzy.club:8080');
 ws.onopen = () => {
     console.log('WebSocket connection established');
-    ws.send(JSON.stringify({ type: 'word', content: `controlleropen` })); //controlleropen
+    ws.send(JSON.stringify({ type: 'word', content: 'controlleropen' }));
 };
 
 ws.onerror = (error) => {
@@ -29,36 +29,35 @@ ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     if (data.type === 'word' && data.content === 'gameState:started') {
         gameStarted = true;
-        console.log("GameBereiterhalten");
-        
+        console.log("Game start received");
     }
-
-}
+};
 
 // DOM elements
 const nameInputSection = document.getElementById('nameInputSection');
 const menuScreen = document.getElementById('menuScreen');
 const controlSection = document.getElementById('controlSection');
-const bereitKnopf = document.getElementById('bereitKnopf');
+const readyBtn = document.getElementById('readyBtn');
 
 let playerName = '';
 let gameModeSelected = false;
 
 // Handle name submission
-document.getElementById('sendNameButton').addEventListener('click', () => {
+document.getElementById('sendNameBtn').addEventListener('click', () => {
     const name = document.getElementById('nameInput').value.trim();
     if (name) {
-    if (gameStarted === true) {
-        playerName = name;
-        ws.send(JSON.stringify({ type: 'word', content: `name: ${playerName}` }));
-        ws.send(JSON.stringify({ type: 'word', content: `controllerReady` }));
-        console.log(`Name registered: ${playerName}`);
-        nameInputSection.style.display = 'none';
-        menuScreen.style.display = 'flex';
+        if (gameStarted) {
+            playerName = name;
+            ws.send(JSON.stringify({ type: 'word', content: `name: ${playerName}` }));
+            ws.send(JSON.stringify({ type: 'word', content: 'controllerReady' }));
+            console.log(`Name registered: ${playerName}`);
+            nameInputSection.style.display = 'none';
+            menuScreen.style.display = 'flex';
+        } else {
+            alert('The game has not started yet');
+        }
     } else {
-        alert('The Game has not started yet');
-    }} else {
-        alert('Please enter a name'); 
+        alert('Please enter a name');
     }
 });
 
@@ -81,15 +80,16 @@ document.getElementById('option1').addEventListener('click', () => selectGameMod
 document.getElementById('option2').addEventListener('click', () => selectGameMode('Option2'));
 document.getElementById('option3').addEventListener('click', () => {
     selectGameMode('Option3');
-    bereitKnopf.style.display = 'flex';
+    readySection.style.display = 'flex';
     controlSection.style.display = 'none';
-
 });
-document.getElementById('bereitKnopf').addEventListener('click', () => {
-    ws.send(JSON.stringify({ type: 'word', content: 'Bereit' }));;
-    bereitKnopf.style.display = 'none';
+
+document.getElementById('readyBtn').addEventListener('click', () => {
+    ws.send(JSON.stringify({ type: 'word', content: 'Bereit' }));
+    readySection.style.display = 'none';
     controlSection.style.display = 'flex';
 });
+
 // Start the game
 function startGame() {
     if (playerName && gameModeSelected) {
@@ -127,5 +127,5 @@ function handleButtonPress(buttonId, message) {
 }
 
 // Set up button press handlers
-handleButtonPress('leftButton', 'left');
-handleButtonPress('rightButton', 'right');
+handleButtonPress('leftBtn', 'left');
+handleButtonPress('rightBtn', 'right');

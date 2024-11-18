@@ -5,7 +5,7 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background: url('../assets/B9.png') no-repeat center center fixed;
+    background: url('../assets/backgroundController.png') no-repeat center center fixed;
     background-size: cover;
     color: #fff;
     font-family: Arial, sans-serif;
@@ -26,16 +26,16 @@ button {
 }
 
 button:hover {
-    background-color: #21a1f1;
+    background-color: rgba(33, 161, 241, 0.8);
     transform: scale(1.05);
 }
 
 button:active {
-    background-color: #1b8cd8;
+    background-color: rgba(27, 140, 216, 0.8);
     transform: scale(0.95);
 }
 
-#nameInputSection, #menuScreen, #bereitKnopf {
+#nameInputSection, #menuScreen, #readySection {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -44,7 +44,7 @@ button:active {
     max-width: 400px;
     margin: 20px 0;
     padding: 20px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -62,7 +62,7 @@ button:active {
     color: #fff;
 }
 
-#bereit {
+#readyBtn {
     width: 200px;
     height: 50px;
     font-size: 18px;
@@ -73,11 +73,11 @@ button:active {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-#bereit:hover {
+#ready:hover {
     background-color: rgba(69, 160, 73, 0.8);
 }
 
-.option-button {
+.optionBtn {
     width: 100%;
     height: 70px;
     max-width: 600px;
@@ -91,18 +91,18 @@ button:active {
 }
 
 #option1 {
-    background-image: url('../assets/B10.png');
+    background-image: url('../assets/gameMode1.png');
 }
 
 #option2 {
-    background-image: url('../assets/B11.png');
+    background-image: url('../assets/gameMode2.png');
 }
 
 #option3 {
-    background-image: url('../assets/B12.png');
+    background-image: url('../assets/gameMode3.png');
 }
 
-.option-button:hover {
+.optionBtn:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
@@ -115,7 +115,7 @@ button:active {
     height: 100px;
 }
 
-#leftButton, #rightButton {
+#leftBtn, #rightBtn {
     padding: 50px 80px;
     font-size: 18px;
     background-color: #007BFF;
@@ -126,11 +126,11 @@ button:active {
     transition: background-color 0.3s ease;
 }
 
-#leftButton:hover, #rightButton:hover {
+#leftBtn:hover, #rightBtn:hover {
     background-color: #0056b3;
 }
 
-#sendNameButton {
+#sendNameBtn {
     width: 200px;
     height: 50px;
     font-size: 18px;
@@ -141,7 +141,7 @@ button:active {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-#sendNameButton:hover {
+#sendNameBtn:hover {
     background-color: #45a049;
 }
 
@@ -152,17 +152,17 @@ button:active {
         font-size: 18px;
     }
 
-    .option-button {
+    .optionBtn {
         max-width: 90%;
     }
 
-    #leftButton, #rightButton {
+    #leftBtn, #rightBtn {
         width: 80px;
         height: 80px;
         font-size: 20px;
     }
 
-    #sendNameButton {
+    #sendNameBtn {
         width: 180px;
         height: 45px;
         font-size: 16px;

@@ -4,31 +4,31 @@
   }
 
   body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: rgb(0, 204, 255);
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: rgb(0, 204, 255);
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    position: relative;
   }
 
   /* Name Input Section */
   #nameInput {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      padding: 10px;
-      font-size: 20px;
-      border: 2px solid #fff;
-      border-radius: 5px;
-      background-color: #333;
-      color: #fff;
-      outline: none;
-      display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 10px;
+    font-size: 20px;
+    border: 2px solid #fff;
+    border-radius: 5px;
+    background-color: #333;
+    color: #fff;
+    outline: none;
+    display: none;
   }
 
   #nameInput::placeholder {
@@ -49,22 +49,22 @@
       font-size: 20px;
   }
 
-  #Nameeingabe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('../assets/B9.png') no-repeat center center fixed;
-      background-size: cover;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
+  #nameInputScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../assets/backgroundController.png') no-repeat center center fixed;
+    background-size: cover;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
   }
 
-#start {
+  #startBtn {
     position: absolute;
     top: 130px;
     left: 61px;
@@ -78,37 +78,35 @@
     cursor: pointer;
     transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
+  }
 
-#start:hover {
+  #startBtn:hover {
     background: linear-gradient(135deg, #0d0a43, #5d15eb);
     transform: translate(-50%, -50%) scale(1.05);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
+  }
 
-#warteScreen {
-  display: none;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  background-color: rgb(0, 204, 255);
-  color: #fff;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  position: relative;
-}
+  #waitingScreen {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: rgb(0, 204, 255);
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    position: relative;
+  }
 
-
-
-#gameOverScreen {
+  #gameOverScreen {
     display: none;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: red;
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -117,8 +115,53 @@
     z-index: 20;
     font-size: 24px;
     text-align: center;
+    animation: fadeIn 1s;
+  }
+
+  #gameOverScreen h1 {
+      margin-bottom: 20px;
+      animation: shake 0.5s;
+  }
+
+  #winScreen {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: green; /* Hintergrund grün */
+    color: #fff;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 30;
+    font-size: 24px;
+    text-align: center;
+    animation: fadeIn 1s;
 }
 
-#gameOverScreen h1 {
+#winScreen h1 {
     margin-bottom: 20px;
+    animation: pulse 1s infinite alternate;
 }
+
+/* Keyframe animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+}
+
