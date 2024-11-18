@@ -6,13 +6,14 @@ const startScreen = document.getElementById('startScreen');
 const waitingScreen = document.getElementById('waitingScreen');
 const startBtn = document.getElementById('startBtn');
 const gameOverScreen = document.getElementById('gameOverScreen');
+const ws = new WebSocket('wss://fanzy.club:8080');
 
 const BALL_SIZE = 20;
 const PLATFORM_WIDTH = 100;
 const PLATFORM_HEIGHT = 10;
 const GOLDEN_BALL_INTERVAL = 5000;
 const GOLDEN_BALL_SCORE = 5;
-const WINNING_SCORE = 5;
+const WINNING_SCORE = 150;
 const MAX_SHIP_SPEED = 10;
 
 const winSound = document.getElementById('winSound');
@@ -58,7 +59,7 @@ let ready1 = false;
 let ready2 = false;
 let option3 = false;
 
-const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
+const scoreboard = [];
 
 // Load images
 const img = new Image();
@@ -155,13 +156,9 @@ function drawWinScreen() {
 }
 
 function updateScoreboard() {
-    scoreboardDiv.innerHTML = '<h2>Scoreboard</h2><ol>' + scoreboard.map(entry => `<li>${entry.name}: ${entry.score}</li>`).join('') + '</ol>';
-}
-
-function clearScoreboard() {
-    localStorage.removeItem('scoreboard');
-    scoreboard.length = 0;
-    updateScoreboard();
+    scoreboardDiv.innerHTML = '<h2>Scoreboard</h2><ol>' + 
+        scoreboard.map(entry => `<li>${entry.name}: ${entry.score}</li>`).join('') + 
+        '</ol>';
 }
 
 function restartGame() {
@@ -170,21 +167,21 @@ function restartGame() {
 
 function decrement() {
     ws.send(JSON.stringify({
-        type: 'action',
+        type: 'arduino',
         content: 'decrement'
     }));
 }
 
 function incrementWhite() {
     ws.send(JSON.stringify({
-        type: 'action',
+        type: 'arduino',
         content: 'incrementWhite'
     }));
 }
 
 function incrementGold() {
     ws.send(JSON.stringify({
-        type: 'action',
+        type: 'arduino',
         content: 'incrementGold'
     }));
 }
@@ -302,8 +299,10 @@ function endGame(win = false) {
         name: playerName,
         playerScore: score
     }));
-    //localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-    updateScoreboard();
+    ws.send(JSON.stringify({
+        type: 'arduino',
+        content: 'end'
+    }));
     setTimeout(restartGame, 4000);
 }
 
@@ -403,8 +402,6 @@ function moves() {
 
 updateScoreboard();
 
-const ws = new WebSocket('wss://fanzy.club:8080');
-
 function initializeWebSocket() {
 
     ws.onopen = function () {
@@ -469,7 +466,15 @@ function initializeWebSocket() {
             return;
         }
 
-        if (data.type === 'word') {
+        if(data.type === 'scoreboard') {
+            scoreboard.length = 0;
+            data.scores.forEach(entry => {
+                scoreboard.push({ name: entry.name, score: entry.score });
+            });
+            scoreboard.sort((a, b) => b.score - a.score);
+
+            updateScoreboard();
+        }else if (data.type === 'word') {
             if (typeof message === 'object' && message.type === 'word' && message.content.startsWith('name:')) {
                 playerName = message.content.substring(5).trim();
                 console.log('Player Name:', playerName);
@@ -536,9 +541,6 @@ function initializeWebSocket() {
                         qrCodePage2.style.display = 'none';
                         waitingScreen.style.display = 'flex';
                         break;
-                    case 'clear':
-                        clearScoreboard();
-                        break;
                     case 'controlleropen':
                         if (ready) {
                             ws.send(JSON.stringify({
@@ -555,7 +557,7 @@ function initializeWebSocket() {
                         break;
                     case 'Bereit2':
                         ready2 = true;
-                        break;
+                        break;    
                     default:
                         console.log('Unknown command in word type:', data.content);
                 }

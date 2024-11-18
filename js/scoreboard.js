@@ -1,5 +1,6 @@
 const scoreboardDiv = document.getElementById('scoreboard');
-const scoreboard = JSON.parse(localStorage.getItem('scoreboard')) || [];
+const scoreboard = [];
+const ws = new WebSocket('wss://fanzy.club:8080');
 
 let score = 0;
 let playerName = '';
@@ -9,7 +10,6 @@ function updateScoreboard() {
 }
 
 function clearScoreboard() {
-    localStorage.removeItem('scoreboard');
     scoreboard.length = 0;
     updateScoreboard();
 }
@@ -18,7 +18,6 @@ updateScoreboard();
 initializeWebSocket();
 
 function initializeWebSocket() {
-    const ws = new WebSocket('wss://fanzy.club:8080');
 
     ws.onopen = function() {
         console.log('WebSocket connection established');
@@ -42,23 +41,22 @@ function initializeWebSocket() {
     }
 
     function processWebSocketMessage(message) {
-        if (message.startsWith('score')) {
-            score = message.substring(6).trim();
-            scoreboard.push({ name: playerName, score });
-            scoreboard.sort((a, b) => b.score - a.score);
-            if (scoreboard.length > 20) {
-                scoreboard.pop();
+        try {
+            const data = JSON.parse(message);
+
+            if (data.type === 'scoreboard' && Array.isArray(data.scores)) {
+                scoreboard.length = 0;
+
+                data.scores.forEach(entry => {
+                    scoreboard.push({ name: entry.name, score: entry.score });
+                });
+
+                scoreboard.sort((a, b) => b.score - a.score);
+
+                updateScoreboard();
             }
-            updateScoreboard();
-        }
-        if (message.startsWith('name')) {
-            playerName = message.substring(11).trim();
-            scoreboard.push({ name: playerName, score });
-            scoreboard.sort((a, b) => b.score - a.score);
-            if (scoreboard.length > 20) {
-                scoreboard.pop();
-            }
-            updateScoreboard();
+        } catch (error) {
+            console.error('Error processing WebSocket message:', error);
         }
     }
 }
