@@ -83,7 +83,7 @@ function resetBall() {
     ballX = imgX;
     ballY = 0;
     ballSpeedY = ballSpeed * 0.3;
-    ballSpeedX = Math.max((Math.random() + 1.1, 1.5)) * 1.35;
+    ballSpeedX = Math.max((Math.random() + 1.1) * 1.6, 1.7) * 1.3;
 }
 
 function resetSecondBalls() {
