@@ -29,7 +29,7 @@ const titleMusic = document.getElementById('titleMusic');
 let winSoundPlayed = false;
 let gameOverSoundPlayed = false;
 
-let ballSpeed = 5.0;
+let ballSpeed = 3.25;
 let secondBallSpeedMultiplier = 2.75;
 let goldenBallSpeedMultiplier = 3.75;
 let ballX, ballY, ballSpeedY, ballSpeedX;
@@ -92,7 +92,7 @@ function resetSecondBalls() {
         secondBalls.push({
             x: imgX,
             y: 0,
-            speedY: ballSpeed * 0.3,
+            speedY: ballSpeed * 2.25 * 0.3,
             speedX: (Math.random() - 0.5) * 3.25
         });
     }
