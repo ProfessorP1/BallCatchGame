@@ -29,9 +29,9 @@ const titleMusic = document.getElementById('titleMusic');
 let winSoundPlayed = false;
 let gameOverSoundPlayed = false;
 
-let ballSpeed = 1.5;
-let secondBallSpeedMultiplier = 0.2;
-let goldenBallSpeedMultiplier = 1.05;
+let ballSpeed = 3.0;
+let secondBallSpeedMultiplier = 0.4;
+let goldenBallSpeedMultiplier = 1.5;
 let ballX, ballY, ballSpeedY, ballSpeedX;
 let secondBalls = [];
 let goldenBallX, goldenBallY, goldenBallSpeedX, goldenBallSpeedY, goldenBallActive = false;
