@@ -29,9 +29,9 @@ const titleMusic = document.getElementById('titleMusic');
 let winSoundPlayed = false;
 let gameOverSoundPlayed = false;
 
-let ballSpeed = 3.0;
-let secondBallSpeedMultiplier = 1.75;
-let goldenBallSpeedMultiplier = 2.3;
+let ballSpeed = 4.0;
+let secondBallSpeedMultiplier = 2.75;
+let goldenBallSpeedMultiplier = 3.75;
 let ballX, ballY, ballSpeedY, ballSpeedX;
 let secondBalls = [];
 let goldenBallX, goldenBallY, goldenBallSpeedX, goldenBallSpeedY, goldenBallActive = false;
@@ -83,7 +83,7 @@ function resetBall() {
     ballX = imgX;
     ballY = 0;
     ballSpeedY = ballSpeed * 0.3;
-    ballSpeedX = Math.max((Math.random() + 1.1) * 1.6, 1.7) * 1.75;
+    ballSpeedX = Math.max((Math.random() + 1.1) * 1.6, 1.7) * 2.75;
 }
 
 function resetSecondBalls() {
@@ -93,7 +93,7 @@ function resetSecondBalls() {
             x: imgX,
             y: 0,
             speedY: ballSpeed * 0.2,
-            speedX: (Math.random() - 0.5) * 1.75
+            speedX: (Math.random() - 0.5) * 2.75
         });
     }
 }
@@ -104,7 +104,7 @@ function moreSecondBalls() {
             x: imgX,
             y: 0,
             speedY: ballSpeed * 0.3,
-            speedX: (Math.random() + 1.1) * 1.5
+            speedX: (Math.random() + 1.1) * 2.5
         });
     }
 }
