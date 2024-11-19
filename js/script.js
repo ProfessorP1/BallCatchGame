@@ -82,7 +82,7 @@ bgImg2.src = 'assets/backgroundGame2.png';
 function resetBall() {
     ballX = imgX;
     ballY = 0;
-    ballSpeedY = ballSpeed * 0.3;
+    ballSpeedY = ballSpeed * 2.25 * 0.3;
     ballSpeedX = Math.max((Math.random() + 1.1) * 1.6, 1.7) * 2.75;
 }
 
@@ -92,7 +92,7 @@ function resetSecondBalls() {
         secondBalls.push({
             x: imgX,
             y: 0,
-            speedY: ballSpeed * 2.25 * 0.3,
+            speedY: ballSpeed * 0.3,
             speedX: (Math.random() - 0.5) * 3.25
         });
     }
